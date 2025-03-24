@@ -1,0 +1,132 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <%- include('../layout/admin-sidebar') %>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Quản lý bài viết</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <a href="/admin/posts/create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Thêm bài viết mới
+          </a>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form class="row g-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control" placeholder="Tìm kiếm bài viết...">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option value="">Tất cả danh mục</option>
+                <% categories.forEach(category => { %>
+                  <option value="<%= category._id %>"><%= category.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="draft">Nháp</option>
+                <option value="published">Đã xuất bản</option>
+                <option value="archived">Đã lưu trữ</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search me-2"></i>Lọc
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Posts Table -->
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tiêu đề</th>
+                  <th>Danh mục</th>
+                  <th>Tác giả</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% news.forEach(post => { %>
+                  <tr>
+                    <td><%= post._id %></td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img src="<%= post.thumbnail %>" class="rounded me-2" width="40" height="40">
+                        <div>
+                          <div class="fw-bold"><%= post.title %></div>
+                          <small class="text-muted"><%= post.slug %></small>
+                        </div>
+                      </div>
+                    </td>
+                    <td><%= post.category.name %></td>
+                    <td><%= post.author.username %></td>
+                    <td>
+                      <span class="badge bg-<%= post.status === 'published' ? 'success' : post.status === 'draft' ? 'warning' : 'secondary' %>">
+                        <%= post.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(post.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                      <div class="btn-group">
+                        <a href="/admin/posts/edit/<%= post._id %>" class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePost('<%= post._id %>')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// Delete post
+function deletePost(postId) {
+  if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+    fetch(`/admin/posts/${postId}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi xóa bài viết');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi xóa bài viết');
+    });
+  }
+}
+</script>
+
+<%- include('../layout/admin-footer') %> 

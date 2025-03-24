@@ -1,0 +1,324 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+      <div class="position-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/dashboard">
+              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active text-white" href="/admin/users">
+              <i class="fas fa-users me-2"></i>Quản lý người dùng
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/news">
+              <i class="fas fa-newspaper me-2"></i>Quản lý tin tức
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/categories">
+              <i class="fas fa-folder me-2"></i>Quản lý danh mục
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/settings">
+              <i class="fas fa-cog me-2"></i>Cài đặt hệ thống
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Quản lý người dùng</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="fas fa-user-plus me-2"></i>Thêm người dùng
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form class="row g-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control" placeholder="Tìm kiếm theo tên hoặc email">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option value="">Tất cả vai trò</option>
+                <option value="user">Người dùng</option>
+                <option value="admin">Admin</option>
+                <option value="editor">Biên tập viên</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Không hoạt động</option>
+                <option value="banned">Bị khóa</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search me-2"></i>Lọc
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên người dùng</th>
+                  <th>Email</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(user => { %>
+                  <tr>
+                    <td><%= user._id %></td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img src="<%= user.avatar %>" class="rounded-circle me-2" width="32" height="32">
+                        <%= user.username %>
+                      </div>
+                    </td>
+                    <td><%= user.email %></td>
+                    <td>
+                      <span class="badge bg-<%= user.role === 'admin' ? 'danger' : user.role === 'editor' ? 'warning' : 'info' %>">
+                        <%= user.role %>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= user.status === 'active' ? 'success' : user.status === 'inactive' ? 'secondary' : 'danger' %>">
+                        <%= user.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editUser('<%= user._id %>')">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteUser('<%= user._id %>')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm người dùng mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+          <div class="mb-3">
+            <label class="form-label">Tên người dùng</label>
+            <input type="text" class="form-control" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" name="password" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <select class="form-select" name="role" required>
+              <option value="user">Người dùng</option>
+              <option value="editor">Biên tập viên</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="submitAddUser()">Thêm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editUserForm">
+          <input type="hidden" name="userId">
+          <div class="mb-3">
+            <label class="form-label">Tên người dùng</label>
+            <input type="text" class="form-control" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mật khẩu mới (để trống nếu không muốn thay đổi)</label>
+            <input type="password" class="form-control" name="password">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <select class="form-select" name="role" required>
+              <option value="user">Người dùng</option>
+              <option value="editor">Biên tập viên</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-select" name="status" required>
+              <option value="active">Hoạt động</option>
+              <option value="inactive">Không hoạt động</option>
+              <option value="banned">Bị khóa</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="submitEditUser()">Cập nhật</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add User
+function submitAddUser() {
+  const form = document.getElementById('addUserForm');
+  const formData = new FormData(form);
+  
+  fetch('/admin/users/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(Object.fromEntries(formData))
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.message || 'Lỗi khi thêm người dùng');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi thêm người dùng');
+  });
+}
+
+// Edit User
+function editUser(userId) {
+  fetch(`/admin/users/${userId}`)
+    .then(response => response.json())
+    .then(user => {
+      const form = document.getElementById('editUserForm');
+      form.userId.value = user._id;
+      form.username.value = user.username;
+      form.email.value = user.email;
+      form.role.value = user.role;
+      form.status.value = user.status;
+      
+      new bootstrap.Modal(document.getElementById('editUserModal')).show();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi tải thông tin người dùng');
+    });
+}
+
+function submitEditUser() {
+  const form = document.getElementById('editUserForm');
+  const formData = new FormData(form);
+  const userId = formData.get('userId');
+  
+  fetch(`/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(Object.fromEntries(formData))
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.message || 'Lỗi khi cập nhật người dùng');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi cập nhật người dùng');
+  });
+}
+
+// Delete User
+function deleteUser(userId) {
+  if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+    fetch(`/admin/users/${userId}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi xóa người dùng');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi xóa người dùng');
+    });
+  }
+}
+</script>
+
+<%- include('../layout/admin-footer') %>

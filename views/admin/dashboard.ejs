@@ -1,0 +1,257 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+      <div class="position-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active text-white" href="/admin/dashboard">
+              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/users">
+              <i class="fas fa-users me-2"></i>Quản lý người dùng
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/news">
+              <i class="fas fa-newspaper me-2"></i>Quản lý tin tức
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/categories">
+              <i class="fas fa-folder me-2"></i>Quản lý danh mục
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/settings">
+              <i class="fas fa-cog me-2"></i>Cài đặt hệ thống
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/backup">
+              <i class="fas fa-database me-2"></i>Backup & Restore
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/admin/cache">
+              <i class="fas fa-bolt me-2"></i>Quản lý Cache
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Chia sẻ</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Xuất báo cáo</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <i class="fas fa-calendar me-1"></i>Tuần này
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    Tổng số người dùng</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><%= dashboard.statistics.totalUsers %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-users fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                    Tổng số tin tức</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><%= dashboard.statistics.totalNews %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-newspaper fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                    Tổng số bình luận</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><%= dashboard.statistics.totalComments %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-comments fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                    Tổng lượt xem</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800"><%= dashboard.statistics.totalViews %></div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-eye fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="row">
+        <div class="col-xl-8 col-lg-7">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Thống kê theo thời gian</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-area">
+                <canvas id="timeStatsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Phân bố tin tức theo danh mục</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-pie">
+                <canvas id="categoryStatsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Hoạt động gần đây</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Thời gian</th>
+                  <th>Người dùng</th>
+                  <th>Hoạt động</th>
+                  <th>Chi tiết</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Add recent activity data here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Time Stats Chart
+  const timeStatsCtx = document.getElementById('timeStatsChart').getContext('2d');
+  new Chart(timeStatsCtx, {
+    type: 'line',
+    data: {
+      labels: <%= JSON.stringify(dashboard.timeStats.daily.map(stat => new Date(stat.date).toLocaleDateString('vi-VN'))) %>,
+      datasets: [{
+        label: 'Người dùng mới',
+        data: <%= JSON.stringify(dashboard.timeStats.daily.map(stat => stat.users)) %>,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }, {
+        label: 'Tin tức mới',
+        data: <%= JSON.stringify(dashboard.timeStats.daily.map(stat => stat.news)) %>,
+        borderColor: 'rgb(255, 99, 132)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Thống kê theo ngày'
+        }
+      }
+    }
+  });
+
+  // Category Stats Chart
+  const categoryStatsCtx = document.getElementById('categoryStatsChart').getContext('2d');
+  new Chart(categoryStatsCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Chính trị', 'Kinh tế', 'Xã hội', 'Thể thao', 'Giải trí'],
+      datasets: [{
+        data: [12, 19, 3, 5, 2],
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(153, 102, 255)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Phân bố tin tức theo danh mục'
+        }
+      }
+    }
+  });
+</script>
+
+<%- include('../layout/admin-footer') %>

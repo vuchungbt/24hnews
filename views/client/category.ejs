@@ -1,0 +1,57 @@
+<%- include('../layout/header', { categories, user, title: category.name }) %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+          <li class="breadcrumb-item active" aria-current="page"><%= category.name %></li>
+        </ol>
+      </nav>
+      
+      <div class="glass p-4 mb-4">
+        <h2 class="mb-3"><%= category.name %></h2>
+        <% if (category.description) { %>
+          <p class="lead"><%= category.description %></p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <% if (news && news.length > 0) { %>
+      <% news.forEach(function(item) { %>
+        <div class="col-md-4 mb-4">
+          <div class="glass-card h-100">
+            <% if (item.image || item.imageUrl) { %>
+              <img src="<%= item.image || item.imageUrl %>" class="card-img-top" alt="<%= item.title %>" onerror="this.src='/images/default-news.jpg'">
+            <% } else { %>
+              <img src="/images/default-news.jpg" class="card-img-top" alt="<%= item.title %>">
+            <% } %>
+            <div class="card-body">
+              <h5 class="card-title"><a href="/news/<%= item.slug || item._id %>"><%= item.title %></a></h5>
+              <p class="card-text"><%= item.summary || (item.content && item.content.substring(0, 100) + '...') %></p>
+            </div>
+            <div class="card-footer bg-transparent">
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <i class="fas fa-calendar"></i> <%= new Date(item.publishedAt || item.createdAt).toLocaleDateString('vi-VN') %>
+                </small>
+                <a href="/news/<%= item.slug || item._id %>" class="btn btn-sm btn-outline-primary">Đọc tiếp</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="alert alert-info">
+          Chưa có bài viết nào trong chuyên mục này.
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../layout/footer', { categories }) %>

@@ -1,0 +1,180 @@
+<%- include('../layout/header') %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Quản Lý Bài Viết</h1>
+
+  <!-- Nút Thêm Bài Viết Mới -->
+  <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createNewsModal">
+    Thêm Bài Viết Mới
+  </button>
+
+  <!-- Bảng Danh Sách Bài Viết -->
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Tiêu Đề</th>
+        <th>Tác Giả</th>
+        <th>Danh Mục</th>
+        <th>Trạng Thái</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% news.forEach(function(article) { %>
+        <tr>
+          <td><%= article.title %></td>
+          <td><%= article.author.username %></td>
+          <td><%= article.category.name %></td>
+          <td>
+            <span class="badge <%= article.status === 'published' ? 'bg-success' : 'bg-warning' %>">
+              <%= article.status %>
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-warning edit-news" 
+              data-id="<%= article._id %>"
+              data-title="<%= article.title %>"
+              data-content="<%= article.content %>"
+              data-category="<%= article.category._id %>"
+              data-status="<%= article.status %>"
+              data-tags="<%= article.tags.join(',') %>"
+              data-bs-toggle="modal" 
+              data-bs-target="#editNewsModal">
+              Sửa
+            </button>
+            <a href="/admin/news/delete/<%= article._id %>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa?')">Xóa</a>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Thêm Bài Viết -->
+<div class="modal fade" id="createNewsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm Bài Viết Mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/admin/news/create" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tiêu Đề</label>
+            <input type="text" class="form-control" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nội Dung</label>
+            <textarea class="form-control" name="content" rows="5" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Danh Mục</label>
+            <select class="form-select" name="category" required>
+              <% categories.forEach(function(category) { %>
+                <option value="<%= category._id %>"><%= category.name %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ảnh Bài Viết</label>
+            <input type="file" class="form-control" name="imageUrl" accept="image/*">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Thẻ</label>
+            <input type="text" class="form-control" name="tags" placeholder="hot, popular, ...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng Thái</label>
+            <select class="form-select" name="status">
+              <option value="draft">Nháp</option>
+              <option value="published">Xuất Bản</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu Bài Viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Chỉnh Sửa Bài Viết -->
+<div class="modal fade" id="editNewsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chỉnh Sửa Bài Viết</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editNewsForm" action="" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tiêu Đề</label>
+            <input type="text" class="form-control" name="title" id="editTitle" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nội Dung</label>
+            <textarea class="form-control" name="content" id="editContent" rows="5" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Danh Mục</label>
+            <select class="form-select" name="category" id="editCategory" required>
+              <% categories.forEach(function(category) { %>
+                <option value="<%= category._id %>"><%= category.name %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ảnh Bài Viết</label>
+            <input type="file" class="form-control" name="imageUrl" accept="image/*">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Thẻ</label>
+            <input type="text" class="form-control" name="tags" id="editTags" placeholder="hot, popular, ...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng Thái</label>
+            <select class="form-select" name="status" id="editStatus">
+              <option value="draft">Nháp</option>
+              <option value="published">Xuất Bản</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Cập Nhật Bài Viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const editButtons = document.querySelectorAll('.edit-news');
+  const editForm = document.getElementById('editNewsForm');
+
+  editButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const title = this.getAttribute('data-title');
+      const content = this.getAttribute('data-content');
+      const category = this.getAttribute('data-category');
+      const status = this.getAttribute('data-status');
+      const tags = this.getAttribute('data-tags');
+
+      editForm.action = `/admin/news/edit/${id}`;
+      document.getElementById('editTitle').value = title;
+      document.getElementById('editContent').value = content;
+      document.getElementById('editCategory').value = category;
+      document.getElementById('editStatus').value = status;
+      document.getElementById('editTags').value = tags;
+    });
+  });
+});
+</script>
+
+<%- include('../layout/footer') %>

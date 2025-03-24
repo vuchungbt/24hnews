@@ -1,0 +1,213 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <%- include('../layout/admin-sidebar') %>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Quản lý danh mục</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="fas fa-plus me-2"></i>Thêm danh mục mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories Table -->
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên danh mục</th>
+                  <th>Slug</th>
+                  <th>Mô tả</th>
+                  <th>Số bài viết</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% categories.forEach(category => { %>
+                  <tr>
+                    <td><%= category._id %></td>
+                    <td><%= category.name %></td>
+                    <td><%= category.slug %></td>
+                    <td><%= category.description %></td>
+                    <td><%= category.postCount || 0 %></td>
+                    <td>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editCategory('<%= category._id %>')">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCategory('<%= category._id %>')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm danh mục mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addCategoryForm">
+          <div class="mb-3">
+            <label class="form-label">Tên danh mục</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="submitAddCategory()">Thêm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chỉnh sửa danh mục</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editCategoryForm">
+          <input type="hidden" name="categoryId">
+          <div class="mb-3">
+            <label class="form-label">Tên danh mục</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="submitEditCategory()">Cập nhật</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add Category
+function submitAddCategory() {
+  const form = document.getElementById('addCategoryForm');
+  const formData = new FormData(form);
+  
+  fetch('/admin/categories/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(Object.fromEntries(formData))
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.message || 'Lỗi khi thêm danh mục');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi thêm danh mục');
+  });
+}
+
+// Edit Category
+function editCategory(categoryId) {
+  fetch(`/admin/categories/${categoryId}`)
+    .then(response => response.json())
+    .then(category => {
+      const form = document.getElementById('editCategoryForm');
+      form.categoryId.value = category._id;
+      form.name.value = category.name;
+      form.description.value = category.description;
+      
+      new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi tải thông tin danh mục');
+    });
+}
+
+function submitEditCategory() {
+  const form = document.getElementById('editCategoryForm');
+  const formData = new FormData(form);
+  const categoryId = formData.get('categoryId');
+  
+  fetch(`/admin/categories/edit/${categoryId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(Object.fromEntries(formData))
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.message || 'Lỗi khi cập nhật danh mục');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi cập nhật danh mục');
+  });
+}
+
+// Delete Category
+function deleteCategory(categoryId) {
+  if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
+    fetch(`/admin/categories/delete/${categoryId}`, {
+      method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi xóa danh mục');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi xóa danh mục');
+    });
+  }
+}
+</script>
+
+<%- include('../layout/admin-footer') %>

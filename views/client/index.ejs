@@ -1,0 +1,103 @@
+<%- include('../layout/header', { categories, user }) %>
+
+<div class="container mt-5">
+  <!-- Hero Section -->
+  <div class="glass p-5 mb-5">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4 text-gradient">Tin tức mới nhất</h1>
+        <p class="lead mb-4">Cập nhật tin tức nhanh chóng, chính xác từ nhiều lĩnh vực khác nhau.</p>
+        <div class="d-flex gap-3 mt-4">
+          <% if (categories && categories.length > 0) { %>
+            <% categories.slice(0, 3).forEach(category => { %>
+              <a href="/category/<%= category.slug %>" class="btn btn-outline-primary">
+                <i class="fas fa-newspaper me-2"></i><%= category.name %>
+              </a>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-6 mt-4 mt-lg-0">
+        <% if (latestNews && latestNews.length > 0) { %>
+          <div class="glass-card h-100">
+            <% if (latestNews[0].imageUrl) { %>
+              <img src="<%= latestNews[0].imageUrl %>" class="card-img-top" alt="<%= latestNews[0].title %>" onerror="this.src='/images/default-news.jpg'">
+            <% } else { %>
+              <img src="/images/default-news.jpg" class="card-img-top" alt="<%= latestNews[0].title %>">
+            <% } %>
+            <div class="card-body p-4">
+              <h3 class="card-title mb-3"><a href="/news/<%= latestNews[0].slug || latestNews[0]._id %>"><%= latestNews[0].title %></a></h3>
+              <p class="card-text mb-4"><%= latestNews[0].content.substring(0, 120) %>...</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <% if (latestNews[0].category) { %>
+                    <span class="badge bg-primary"><i class="fas fa-tag me-1"></i><%= latestNews[0].category.name %></span>
+                  <% } %>
+                  <small class="text-muted ms-2"><i class="far fa-clock me-1"></i><%= new Date(latestNews[0].publishedAt || latestNews[0].createdAt).toLocaleDateString('vi-VN') %></small>
+                </div>
+                <a href="/news/<%= latestNews[0].slug || latestNews[0]._id %>" class="btn btn-primary">
+                  <i class="fas fa-arrow-right me-2"></i>Đọc tiếp
+                </a>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Sections -->
+  <% if (categories && categories.length > 0) { %>
+    <% categories.forEach((category, index) => { %>
+      <section class="category-section">
+        <div class="category-header">
+          <h2 class="category-title"><i class="fas fa-newspaper me-2"></i><%= category.name %></h2>
+          <a href="/category/<%= category.slug %>" class="category-link">
+            Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        
+        <div class="row g-4">
+          <% 
+            const categoryNews = latestNews.filter(news => 
+              news.category && (news.category._id.toString() === category._id.toString() || 
+              news.category.toString() === category._id.toString())
+            ).slice(0, 3);
+            
+            if (categoryNews.length > 0) { 
+          %>
+            <% categoryNews.forEach(news => { %>
+              <div class="col-md-4">
+                <div class="glass-card h-100">
+                  <% if (news.imageUrl) { %>
+                    <img src="<%= news.imageUrl %>" class="card-img-top" alt="<%= news.title %>" onerror="this.src='/images/default-news.jpg'">
+                  <% } else { %>
+                    <img src="/images/default-news.jpg" class="card-img-top" alt="<%= news.title %>">
+                  <% } %>
+                  <div class="card-body p-4">
+                    <h5 class="card-title mb-3"><a href="/news/<%= news.slug || news._id %>"><%= news.title %></a></h5>
+                    <p class="card-text mb-4"><%= news.content.substring(0, 100) %>...</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted"><i class="far fa-clock me-1"></i><%= new Date(news.publishedAt || news.createdAt).toLocaleDateString('vi-VN') %></small>
+                      <a href="/news/<%= news.slug || news._id %>" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right me-2"></i>Đọc tiếp
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="col-12">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Chưa có bài viết nào trong chuyên mục này.
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% }) %>
+  <% } %>
+</div>
+
+<%- include('../layout/footer', { categories }) %>

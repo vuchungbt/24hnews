@@ -1,0 +1,303 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <%- include('../layout/admin-sidebar') %>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Cài đặt hệ thống</h1>
+      </div>
+
+      <!-- Settings Tabs -->
+      <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general" role="tab">
+            <i class="fas fa-cog me-2"></i>Cài đặt chung
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="email-tab" data-bs-toggle="tab" href="#email" role="tab">
+            <i class="fas fa-envelope me-2"></i>Cài đặt email
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="social-tab" data-bs-toggle="tab" href="#social" role="tab">
+            <i class="fas fa-share-alt me-2"></i>Mạng xã hội
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="security-tab" data-bs-toggle="tab" href="#security" role="tab">
+            <i class="fas fa-shield-alt me-2"></i>Bảo mật
+          </a>
+        </li>
+      </ul>
+
+      <!-- Settings Content -->
+      <div class="tab-content" id="settingsContent">
+        <!-- General Settings -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+          <div class="card">
+            <div class="card-body">
+              <form id="generalSettingsForm">
+                <div class="mb-3">
+                  <label class="form-label">Tên website</label>
+                  <input type="text" class="form-control" name="siteName" value="<%= dashboard.settings.siteName %>" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Mô tả website</label>
+                  <textarea class="form-control" name="siteDescription" rows="3"><%= dashboard.settings.siteDescription %></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Logo</label>
+                  <input type="file" class="form-control" name="logo" accept="image/*">
+                  <% if (dashboard.settings.logo) { %>
+                    <img src="<%= dashboard.settings.logo %>" class="mt-2" height="50">
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Favicon</label>
+                  <input type="file" class="form-control" name="favicon" accept="image/*">
+                  <% if (dashboard.settings.favicon) { %>
+                    <img src="<%= dashboard.settings.favicon %>" class="mt-2" height="32">
+                  <% } %>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email liên hệ</label>
+                  <input type="email" class="form-control" name="contactEmail" value="<%= dashboard.settings.contactEmail %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu cài đặt chung</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Settings -->
+        <div class="tab-pane fade" id="email" role="tabpanel">
+          <div class="card">
+            <div class="card-body">
+              <form id="emailSettingsForm">
+                <div class="mb-3">
+                  <label class="form-label">SMTP Host</label>
+                  <input type="text" class="form-control" name="smtpHost" value="<%= dashboard.settings.email.smtpHost %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">SMTP Port</label>
+                  <input type="number" class="form-control" name="smtpPort" value="<%= dashboard.settings.email.smtpPort %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">SMTP User</label>
+                  <input type="text" class="form-control" name="smtpUser" value="<%= dashboard.settings.email.smtpUser %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">SMTP Password</label>
+                  <input type="password" class="form-control" name="smtpPass" value="<%= dashboard.settings.email.smtpPass %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email gửi</label>
+                  <input type="email" class="form-control" name="fromEmail" value="<%= dashboard.settings.email.fromEmail %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu cài đặt email</button>
+                <button type="button" class="btn btn-info" onclick="testEmail()">Gửi email thử nghiệm</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media Settings -->
+        <div class="tab-pane fade" id="social" role="tabpanel">
+          <div class="card">
+            <div class="card-body">
+              <form id="socialSettingsForm">
+                <div class="mb-3">
+                  <label class="form-label">Facebook</label>
+                  <input type="url" class="form-control" name="facebook" value="<%= dashboard.settings.socialMedia.facebook %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Twitter</label>
+                  <input type="url" class="form-control" name="twitter" value="<%= dashboard.settings.socialMedia.twitter %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Instagram</label>
+                  <input type="url" class="form-control" name="instagram" value="<%= dashboard.settings.socialMedia.instagram %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">YouTube</label>
+                  <input type="url" class="form-control" name="youtube" value="<%= dashboard.settings.socialMedia.youtube %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu cài đặt mạng xã hội</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="tab-pane fade" id="security" role="tabpanel">
+          <div class="card">
+            <div class="card-body">
+              <form id="securitySettingsForm">
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="maintenance" id="maintenanceSwitch" 
+                      <%= dashboard.settings.maintenance.enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="maintenanceSwitch">Chế độ bảo trì</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Thông báo bảo trì</label>
+                  <textarea class="form-control" name="maintenanceMessage" rows="3"><%= dashboard.settings.maintenance.message %></textarea>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="registrationEnabled" id="registrationSwitch"
+                      <%= dashboard.settings.registration.enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="registrationSwitch">Cho phép đăng ký</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="requireEmailVerification" id="emailVerificationSwitch"
+                      <%= dashboard.settings.registration.requireEmailVerification ? 'checked' : '' %>>
+                    <label class="form-check-label" for="emailVerificationSwitch">Yêu cầu xác thực email</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="commentsEnabled" id="commentsSwitch"
+                      <%= dashboard.settings.comments.enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="commentsSwitch">Cho phép bình luận</label>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="requireCommentApproval" id="commentApprovalSwitch"
+                      <%= dashboard.settings.comments.requireApproval ? 'checked' : '' %>>
+                    <label class="form-check-label" for="commentApprovalSwitch">Yêu cầu duyệt bình luận</label>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu cài đặt bảo mật</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// Save General Settings
+document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  fetch('/admin/settings/general', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Đã lưu cài đặt chung');
+    } else {
+      alert(data.message || 'Lỗi khi lưu cài đặt');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi lưu cài đặt');
+  });
+});
+
+// Save Email Settings
+document.getElementById('emailSettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  fetch('/admin/settings/email', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Đã lưu cài đặt email');
+    } else {
+      alert(data.message || 'Lỗi khi lưu cài đặt');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi lưu cài đặt');
+  });
+});
+
+// Save Social Media Settings
+document.getElementById('socialSettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  fetch('/admin/settings/social', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Đã lưu cài đặt mạng xã hội');
+    } else {
+      alert(data.message || 'Lỗi khi lưu cài đặt');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi lưu cài đặt');
+  });
+});
+
+// Save Security Settings
+document.getElementById('securitySettingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  fetch('/admin/settings/security', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Đã lưu cài đặt bảo mật');
+    } else {
+      alert(data.message || 'Lỗi khi lưu cài đặt');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi lưu cài đặt');
+  });
+});
+
+// Test Email
+function testEmail() {
+  fetch('/admin/settings/test-email', {
+    method: 'POST'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Đã gửi email thử nghiệm');
+    } else {
+      alert(data.message || 'Lỗi khi gửi email');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Lỗi khi gửi email');
+  });
+}
+</script>
+
+<%- include('../layout/admin-footer') %> 

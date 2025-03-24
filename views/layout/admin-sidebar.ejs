@@ -1,0 +1,55 @@
+<!-- Sidebar -->
+<div class="sidebar bg-dark text-white">
+  <div class="sidebar-sticky">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+          <i class="fas fa-tachometer-alt me-2"></i>
+          Dashboard
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/posts') ? 'active' : '' %>" href="/admin/posts">
+          <i class="fas fa-newspaper me-2"></i>
+          Bài viết
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/categories') ? 'active' : '' %>" href="/admin/categories">
+          <i class="fas fa-folder me-2"></i>
+          Danh mục
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/tags') ? 'active' : '' %>" href="/admin/tags">
+          <i class="fas fa-tags me-2"></i>
+          Thẻ
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/users') ? 'active' : '' %>" href="/admin/users">
+          <i class="fas fa-users me-2"></i>
+          Người dùng
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/comments') ? 'active' : '' %>" href="/admin/comments">
+          <i class="fas fa-comments me-2"></i>
+          Bình luận
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= path.startsWith('/admin/settings') ? 'active' : '' %>" href="/admin/settings">
+          <i class="fas fa-cog me-2"></i>
+          Cài đặt
+        </a>
+      </li>
+    </ul>
+  </div>
+</div> 

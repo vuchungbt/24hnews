@@ -1,0 +1,378 @@
+/* Biến màu chính */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --dark-color: #2c3e50;
+  --light-color: #ecf0f1;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
+  --info-color: #1abc9c;
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+/* Thiết lập cơ bản */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f8fa;
+  color: #333;
+  line-height: 1.6;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Modern Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  transition: all 0.3s ease;
+}
+
+.glass:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+}
+
+.glass-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.glass-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+/* Header */
+.navbar {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-brand img {
+  height: 40px;
+}
+
+/* Footer */
+footer {
+  background: rgba(44, 62, 80, 0.9);
+  color: white;
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+/* Trang chủ */
+.hero-section {
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  color: white;
+  padding: 5rem 0;
+  margin-bottom: 3rem;
+  border-radius: 0 0 20px 20px;
+}
+
+.featured-news {
+  margin-bottom: 3rem;
+}
+
+.news-card {
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
+}
+
+.news-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Trang chi tiết tin tức */
+.news-detail img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.news-content {
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.news-meta {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Sidebar */
+.sidebar-section {
+  position: sticky;
+  top: 20px;
+}
+
+.category-list .badge {
+  float: right;
+}
+
+/* Trang đăng nhập/đăng ký */
+.auth-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Admin Dashboard */
+.admin-dashboard .card {
+  margin-bottom: 1.5rem;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Utilities */
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 5px;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #3498db, #2ecc71);
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-success {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-success:hover {
+  background-color: #27ae60;
+  border-color: #27ae60;
+}
+
+/* Forms */
+.form-control {
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+  border-color: var(--primary-color);
+}
+
+/* Tables */
+.table {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.pagination .page-link {
+  color: var(--primary-color);
+}
+
+/* Profile page */
+.profile-header {
+  background: linear-gradient(135deg, #3498db, #2c3e50);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 20px 20px;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* News management */
+.news-status-published {
+  color: var(--secondary-color);
+}
+
+.news-status-draft {
+  color: var(--warning-color);
+}
+
+.news-status-archived {
+  color: var(--danger-color);
+}
+
+/* Category Section Styles */
+.category-section {
+  padding: 2rem 0;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.category-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.category-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  border-radius: 3px;
+}
+
+.category-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.category-link:hover {
+  color: #2980b9;
+  transform: translateX(5px);
+}
+
+/* Button Styles */
+.btn-outline-primary {
+  border: 2px solid #3498db;
+  color: #3498db;
+  padding: 0.5rem 1.5rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(45deg, #3498db, #2ecc71);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Card Styles */
+.card-title a {
+  color: #2c3e50;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.card-title a:hover {
+  color: #3498db;
+}
+
+.card-text {
+  color: #7f8c8d;
+  line-height: 1.6;
+}
+
+/* Badge Styles */
+.badge {
+  padding: 0.5em 1em;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .glass {
+    padding: 1rem;
+  }
+  
+  .category-title {
+    font-size: 1.5rem;
+  }
+  
+  .glass-card .card-img-top {
+    height: 150px;
+  }
+}

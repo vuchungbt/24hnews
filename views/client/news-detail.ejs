@@ -1,0 +1,115 @@
+<%- include('../layout/header', { categories, title }) %>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+          <% if (news.category) { %>
+            <li class="breadcrumb-item"><a href="/category/<%= news.category.slug || '#' %>"><%= news.category.name %></a></li>
+          <% } %>
+          <li class="breadcrumb-item active" aria-current="page"><%= news.title %></li>
+        </ol>
+      </nav>
+
+      <article class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h1 class="card-title mb-3"><%= news.title %></h1>
+          
+          <div class="d-flex mb-3 text-muted">
+            <div class="me-3">
+              <i class="fas fa-user"></i> <%= news.author ? news.author.username : 'Admin' %>
+            </div>
+            <div class="me-3">
+              <i class="fas fa-calendar"></i> <%= new Date(news.createdAt).toLocaleDateString('vi-VN') %>
+            </div>
+            <div>
+              <i class="fas fa-eye"></i> <%= news.viewCount || 0 %> lượt xem
+            </div>
+          </div>
+
+          <% if (news.image) { %>
+            <div class="text-center mb-4">
+              <img src="<%= news.image %>" class="img-fluid rounded" alt="<%= news.title %>" onerror="this.src='/images/default-news.jpg'">
+              <% if (news.imageCaption) { %>
+                <figcaption class="figure-caption text-center mt-2"><%= news.imageCaption %></figcaption>
+              <% } %>
+            </div>
+          <% } %>
+
+          <div class="lead mb-4">
+            <%= news.summary %>
+          </div>
+
+          <div class="news-content">
+            <%- news.content %>
+          </div>
+
+          <% if (news.tags && news.tags.length > 0) { %>
+            <div class="mt-4">
+              <h5>Tags:</h5>
+              <div>
+                <% news.tags.forEach(function(tag) { %>
+                  <a href="/tag/<%= tag %>" class="badge bg-secondary text-decoration-none me-1"><%= tag %></a>
+                <% }); %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </article>
+
+      <!-- Related News -->
+      <% if (relatedNews && relatedNews.length > 0) { %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Bài Viết Liên Quan</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <% relatedNews.forEach(function(item) { %>
+                <div class="col-md-6 mb-3">
+                  <div class="card h-100">
+                    <% if (item.image) { %>
+                      <img src="<%= item.image %>" class="card-img-top" alt="<%= item.title %>" onerror="this.src='/images/default-news.jpg'">
+                    <% } else { %>
+                      <img src="/images/default-news.jpg" class="card-img-top" alt="<%= item.title %>">
+                    <% } %>
+                    <div class="card-body">
+                      <h5 class="card-title"><%= item.title %></h5>
+                      <p class="card-text"><small class="text-muted"><%= new Date(item.createdAt).toLocaleDateString('vi-VN') %></small></p>
+                      <a href="/news/<%= item._id %>" class="btn btn-sm btn-outline-primary">Đọc tiếp</a>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Category Widget -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Chuyên Mục</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <% categories.forEach(function(category) { %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="/category/<%= category.slug %>" class="text-decoration-none"><%= category.name %></a>
+                <span class="badge bg-primary rounded-pill"><%= category.count || 0 %></span>
+              </li>
+            <% }); %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,167 @@
+<%- include('../layout/admin-header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <%- include('../layout/admin-sidebar') %>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Quản lý bình luận</h1>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form class="row g-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control" placeholder="Tìm kiếm bình luận...">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending">Chờ duyệt</option>
+                <option value="approved">Đã duyệt</option>
+                <option value="rejected">Từ chối</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search me-2"></i>Lọc
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Comments Table -->
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Người bình luận</th>
+                  <th>Bài viết</th>
+                  <th>Nội dung</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% comments.forEach(comment => { %>
+                  <tr>
+                    <td><%= comment._id %></td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img src="<%= comment.user.avatar %>" class="rounded-circle me-2" width="32" height="32">
+                        <%= comment.user.username %>
+                      </div>
+                    </td>
+                    <td>
+                      <a href="/news/<%= comment.news.slug %>" target="_blank">
+                        <%= comment.news.title %>
+                      </a>
+                    </td>
+                    <td><%= comment.content %></td>
+                    <td>
+                      <span class="badge bg-<%= comment.status === 'approved' ? 'success' : comment.status === 'pending' ? 'warning' : 'danger' %>">
+                        <%= comment.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(comment.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                      <div class="btn-group">
+                        <% if (comment.status === 'pending') { %>
+                          <button type="button" class="btn btn-sm btn-outline-success" onclick="approveComment('<%= comment._id %>')">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-danger" onclick="rejectComment('<%= comment._id %>')">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        <% } %>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteComment('<%= comment._id %>')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// Approve Comment
+function approveComment(commentId) {
+  if (confirm('Bạn có chắc chắn muốn duyệt bình luận này?')) {
+    fetch(`/admin/comments/${commentId}/approve`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi duyệt bình luận');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi duyệt bình luận');
+    });
+  }
+}
+
+// Reject Comment
+function rejectComment(commentId) {
+  if (confirm('Bạn có chắc chắn muốn từ chối bình luận này?')) {
+    fetch(`/admin/comments/${commentId}/reject`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi từ chối bình luận');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi từ chối bình luận');
+    });
+  }
+}
+
+// Delete Comment
+function deleteComment(commentId) {
+  if (confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+    fetch(`/admin/comments/${commentId}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message || 'Lỗi khi xóa bình luận');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Lỗi khi xóa bình luận');
+    });
+  }
+}
+</script>
+
+<%- include('../layout/admin-footer') %> 
