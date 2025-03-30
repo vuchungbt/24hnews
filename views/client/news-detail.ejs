@@ -1,4 +1,4 @@
-<%- include('../layout/header', { categories, title }) %>
+<%- include('../layout/client-header') %>
 
 <div class="container mt-4">
   <div class="row">
@@ -30,12 +30,19 @@
             </div>
           </div>
 
-          <% if (news.image) { %>
+          <% if (news.imageUrl) { %>
             <div class="text-center mb-4">
-              <img src="<%= news.image %>" class="img-fluid rounded" alt="<%= news.title %>" onerror="this.src='/images/default-news.jpg'">
+              <img src="<%= news.imageUrl.startsWith('/uploads/') ? news.imageUrl : `/uploads/news/${news.imageUrl}` %>" 
+                   class="img-fluid rounded" 
+                   alt="<%= news.title %>" 
+                   onerror="this.src='/images/default-news.jpg'">
               <% if (news.imageCaption) { %>
                 <figcaption class="figure-caption text-center mt-2"><%= news.imageCaption %></figcaption>
               <% } %>
+            </div>
+          <% } else { %>
+            <div class="text-center mb-4">
+              <img src="/images/default-news.jpg" class="img-fluid rounded" alt="<%= news.title %>">
             </div>
           <% } %>
 
@@ -49,10 +56,14 @@
 
           <% if (news.tags && news.tags.length > 0) { %>
             <div class="mt-4">
-              <h5>Tags:</h5>
-              <div>
+              <h5>Thẻ:</h5>
+              <div class="tags">
                 <% news.tags.forEach(function(tag) { %>
-                  <a href="/tag/<%= tag %>" class="badge bg-secondary text-decoration-none me-1"><%= tag %></a>
+                  <% if (tag.slug) { %>
+                    <a href="/tag/<%= tag.slug %>" class="tag-badge">
+                      <%= tag.name %>
+                    </a>
+                  <% } %>
                 <% }); %>
               </div>
             </div>
@@ -71,15 +82,18 @@
               <% relatedNews.forEach(function(item) { %>
                 <div class="col-md-6 mb-3">
                   <div class="card h-100">
-                    <% if (item.image) { %>
-                      <img src="<%= item.image %>" class="card-img-top" alt="<%= item.title %>" onerror="this.src='/images/default-news.jpg'">
+                    <% if (item.imageUrl) { %>
+                      <img src="<%= item.imageUrl.startsWith('/uploads/') ? item.imageUrl : `/uploads/news/${item.imageUrl}` %>" 
+                           class="card-img-top" 
+                           alt="<%= item.title %>" 
+                           onerror="this.src='/images/default-news.jpg'">
                     <% } else { %>
                       <img src="/images/default-news.jpg" class="card-img-top" alt="<%= item.title %>">
                     <% } %>
                     <div class="card-body">
                       <h5 class="card-title"><%= item.title %></h5>
                       <p class="card-text"><small class="text-muted"><%= new Date(item.createdAt).toLocaleDateString('vi-VN') %></small></p>
-                      <a href="/news/<%= item._id %>" class="btn btn-sm btn-outline-primary">Đọc tiếp</a>
+                      <a href="/news/<%= item.slug %>" class="btn btn-sm btn-outline-primary">Đọc tiếp</a>
                     </div>
                   </div>
                 </div>
@@ -112,4 +126,42 @@
   </div>
 </div>
 
-<%- include('../layout/footer') %>
+<style>
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tag-badge {
+  background: var(--glass-bg);
+  color: #333;
+  padding: 8px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: inline-flex;
+  align-items: center;
+}
+
+.tag-badge:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tag-badge.active {
+  background: #007bff;
+  color: white;
+}
+
+.tag-badge .badge {
+  font-size: 0.8rem;
+  padding: 0.25em 0.6em;
+}
+</style>
+
+<%- include('../layout/client-footer') %>

@@ -1,0 +1,106 @@
+<footer class="bg-dark text-light py-4 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <h5>Về chúng tôi</h5>
+        <p><%= settings ? settings.siteDescription : 'Website tin tức tổng hợp, cập nhật 24/7 các tin tức mới nhất về chính trị, kinh tế, xã hội, thể thao, giải trí...' %></p>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <h5>Liên kết nhanh</h5>
+        <ul class="list-unstyled">
+          <li><a href="/" class="text-light text-decoration-none">Trang chủ</a></li>
+          <li><a href="/about" class="text-light text-decoration-none">Giới thiệu</a></li>
+          <li><a href="/contact" class="text-light text-decoration-none">Liên hệ</a></li>
+          <li><a href="/privacy" class="text-light text-decoration-none">Chính sách bảo mật</a></li>
+          <li><a href="/terms" class="text-light text-decoration-none">Điều khoản sử dụng</a></li>
+        </ul>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <h5>Liên hệ</h5>
+        <ul class="list-unstyled">
+          <% if (settings) { %>
+            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> <%= settings.address %></li>
+            <li class="mb-2"><i class="fas fa-phone me-2"></i> <%= settings.contactPhone %></li>
+            <li class="mb-2"><i class="fas fa-envelope me-2"></i> <%= settings.contactEmail %></li>
+          <% } else { %>
+            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Đà Nẵng, Việt Nam</li>
+            <li class="mb-2"><i class="fas fa-phone me-2"></i> +84 123 456 789</li>
+            <li class="mb-2"><i class="fas fa-envelope me-2"></i> contact@example.com</li>
+          <% } %>
+        </ul>
+        <h5 class="mt-4">Kết nối với chúng tôi</h5>
+        <div class="social-links">
+          <% if (settings && settings.socialMedia) { %>
+            <% if (settings.socialMedia.facebook) { %>
+              <a href="<%= settings.socialMedia.facebook %>" target="_blank" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+            <% } %>
+            <% if (settings.socialMedia.twitter) { %>
+              <a href="<%= settings.socialMedia.twitter %>" target="_blank" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+            <% } %>
+            <% if (settings.socialMedia.instagram) { %>
+              <a href="<%= settings.socialMedia.instagram %>" target="_blank" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+            <% } %>
+            <% if (settings.socialMedia.youtube) { %>
+              <a href="<%= settings.socialMedia.youtube %>" target="_blank" class="text-light"><i class="fab fa-youtube"></i></a>
+            <% } %>
+          <% } else { %>
+            <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-light"><i class="fab fa-youtube"></i></a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="my-4">
+    
+    <div class="row">
+      <div class="col-md-6 text-center text-md-start">
+        <p class="mb-0">&copy; <%= new Date().getFullYear() %> <%= settings ? settings.siteName : 'Website Tin Tức' %>. All rights reserved.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <p class="mb-0">Thiết kế bởi <a href="#" class="text-light text-decoration-none">Your Company</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+.social-links a {
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.social-links a:hover {
+  color: #007bff !important;
+}
+
+footer a:hover {
+  color: #007bff !important;
+}
+</style>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Debug Settings -->
+<script>
+  window.onload = function() {
+    const settingsData = {
+      hasSettings: <%= !!settings %>,
+      hasSocialMedia: <%= !!(settings && settings.socialMedia) %>,
+      socialMedia: {
+        facebook: '<%= settings && settings.socialMedia ? settings.socialMedia.facebook : "" %>',
+        twitter: '<%= settings && settings.socialMedia ? settings.socialMedia.twitter : "" %>',
+        instagram: '<%= settings && settings.socialMedia ? settings.socialMedia.instagram : "" %>',
+        youtube: '<%= settings && settings.socialMedia ? settings.socialMedia.youtube : "" %>'
+      }
+    };
+    console.log('Settings Data:', settingsData);
+  };
+</script>
+</body>
+</html> 

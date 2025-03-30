@@ -69,8 +69,31 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.navbar-brand img {
-  height: 40px;
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-brand .site-logo {
+  max-height: 40px;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand .site-logo:hover {
+  transform: scale(1.05);
+}
+
+.navbar-brand i {
+  font-size: 1.5rem;
+  color: #007bff;
+}
+
+.navbar-brand span {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
 }
 
 /* Footer */
@@ -158,6 +181,18 @@ footer {
 @media (max-width: 768px) {
   .admin-stats-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .navbar-brand .site-logo {
+    max-height: 32px;
+  }
+  
+  .navbar-brand i {
+    font-size: 1.2rem;
+  }
+  
+  .navbar-brand span {
+    font-size: 1.2rem;
   }
 }
 
@@ -375,4 +410,81 @@ footer {
   .glass-card .card-img-top {
     height: 150px;
   }
+}
+
+/* Dropdown Menu Styles */
+.dropdown-menu {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  list-style: none;
+}
+
+.dropdown-item {
+  padding: 0.7rem 1rem;
+  color: #333;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+}
+
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+.dropdown-divider {
+  margin: 0.5rem 0;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.nav-item.dropdown {
+  list-style: none;
+}
+
+/* Logo styles */
+.site-logo {
+    max-height: 50px;
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+.site-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Favicon styles */
+.favicon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* Header styles */
+header {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header .container {
+    position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .site-logo {
+        max-height: 40px;
+    }
 }

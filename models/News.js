@@ -29,8 +29,8 @@ const newsSchema = new mongoose.Schema({
     required: true
   },
   tags: [{
-    type: String,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tag'
   }],
   status: {
     type: String,
@@ -52,8 +52,7 @@ const newsSchema = new mongoose.Schema({
     type: Date
   }
 });
-
-// Tạo slug từ title trước khi lưu
+ 
 newsSchema.pre('save', function(next) {
   if (this.isNew || this.isModified('title')) {
     this.slug = slugify(this.title, { lower: true, strict: true });

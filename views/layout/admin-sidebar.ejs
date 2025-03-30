@@ -1,55 +1,152 @@
 <!-- Sidebar -->
-<div class="sidebar bg-dark text-white">
+<nav class="col-md-2 d-none d-md-block bg-dark sidebar">
   <div class="sidebar-sticky">
+    <div class="sidebar-header">
+      <h3 class="text-white mb-0 p-3">
+        <i class="fas fa-newspaper"></i>
+        Quản trị
+      </h3>
+    </div>
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+        <a class="nav-link text-white <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
           <i class="fas fa-tachometer-alt me-2"></i>
           Dashboard
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/posts') ? 'active' : '' %>" href="/admin/posts">
+        <a class="nav-link text-white <%= path.includes('/admin/news') ? 'active' : '' %>" href="/admin/news">
           <i class="fas fa-newspaper me-2"></i>
-          Bài viết
+          Quản lý bài viết
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/categories') ? 'active' : '' %>" href="/admin/categories">
+        <a class="nav-link text-white <%= path.includes('/admin/categories') ? 'active' : '' %>" href="/admin/categories">
           <i class="fas fa-folder me-2"></i>
-          Danh mục
+          Quản lý danh mục
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/tags') ? 'active' : '' %>" href="/admin/tags">
+        <a class="nav-link text-white <%= path.includes('/admin/tags') ? 'active' : '' %>" href="/admin/tags">
           <i class="fas fa-tags me-2"></i>
-          Thẻ
+          Quản lý thẻ
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/users') ? 'active' : '' %>" href="/admin/users">
+        <a class="nav-link text-white <%= path.includes('/admin/users') ? 'active' : '' %>" href="/admin/users">
           <i class="fas fa-users me-2"></i>
-          Người dùng
+          Quản lý người dùng
         </a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/comments') ? 'active' : '' %>" href="/admin/comments">
-          <i class="fas fa-comments me-2"></i>
-          Bình luận
-        </a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link <%= path.startsWith('/admin/settings') ? 'active' : '' %>" href="/admin/settings">
+        <a class="nav-link text-white <%= path.includes('/admin/settings') ? 'active' : '' %>" href="/admin/settings">
           <i class="fas fa-cog me-2"></i>
-          Cài đặt
+          Cài đặt hệ thống
+        </a>
+      </li>
+
+      <li class="nav-item mt-3">
+        <a class="nav-link text-white" href="/" target="_blank">
+          <i class="fas fa-external-link-alt me-2"></i>
+          Xem trang chủ
         </a>
       </li>
     </ul>
   </div>
-</div> 
+</nav>
+
+<style>
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 250px;
+  z-index: 100;
+  padding: 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.sidebar-header h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.sidebar-header i {
+  color: #007bff;
+  margin-right: 0.5rem;
+}
+
+.sidebar .nav-link {
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.75);
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  border-left-color: rgba(255,255,255,.5);
+}
+
+.sidebar .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  border-left-color: #007bff;
+}
+
+.sidebar .nav-link i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Scrollbar styles */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,.2);
+  border-radius: 3px;
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .sidebar-sticky {
+    height: auto;
+  }
+  
+  .sidebar .nav-link {
+    padding: 0.75rem 1rem;
+  }
+}
+</style> 

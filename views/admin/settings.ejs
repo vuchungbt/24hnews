@@ -1,5 +1,8 @@
 <%- include('../layout/admin-header') %>
 
+<!-- Thêm Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
@@ -28,11 +31,6 @@
             <i class="fas fa-share-alt me-2"></i>Mạng xã hội
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" id="security-tab" data-bs-toggle="tab" href="#security" role="tab">
-            <i class="fas fa-shield-alt me-2"></i>Bảo mật
-          </a>
-        </li>
       </ul>
 
       <!-- Settings Content -->
@@ -44,29 +42,45 @@
               <form id="generalSettingsForm">
                 <div class="mb-3">
                   <label class="form-label">Tên website</label>
-                  <input type="text" class="form-control" name="siteName" value="<%= dashboard.settings.siteName %>" required>
+                  <input type="text" class="form-control" name="siteName" value="<%= settings.siteName %>" required>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Mô tả website</label>
-                  <textarea class="form-control" name="siteDescription" rows="3"><%= dashboard.settings.siteDescription %></textarea>
+                  <textarea class="form-control" name="siteDescription" rows="3"><%= settings.siteDescription %></textarea>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Logo</label>
-                  <input type="file" class="form-control" name="logo" accept="image/*">
-                  <% if (dashboard.settings.logo) { %>
-                    <img src="<%= dashboard.settings.logo %>" class="mt-2" height="50">
-                  <% } %>
+                  <input type="file" class="form-control" name="logo" accept="image/*" onchange="previewImage(this, 'logoPreview')">
+                  <div class="mt-2">
+                    <img id="logoPreview" 
+                         src="<%= settings.siteLogo || '/images/default-logo.png' %>" 
+                         class="img-thumbnail" 
+                         style="max-height: 50px;"
+                         onerror="this.src='/images/default-logo.png'">
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Favicon</label>
-                  <input type="file" class="form-control" name="favicon" accept="image/*">
-                  <% if (dashboard.settings.favicon) { %>
-                    <img src="<%= dashboard.settings.favicon %>" class="mt-2" height="32">
-                  <% } %>
+                  <input type="file" class="form-control" name="favicon" accept="image/*" onchange="previewImage(this, 'faviconPreview')">
+                  <div class="mt-2">
+                    <img id="faviconPreview" 
+                         src="<%= settings.siteFavicon || '/images/default-favicon.png' %>" 
+                         class="img-thumbnail" 
+                         style="max-height: 32px;"
+                         onerror="this.src='/images/default-favicon.png'">
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Email liên hệ</label>
-                  <input type="email" class="form-control" name="contactEmail" value="<%= dashboard.settings.contactEmail %>">
+                  <input type="email" class="form-control" name="contactEmail" value="<%= settings.contactEmail %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Số điện thoại</label>
+                  <input type="text" class="form-control" name="contactPhone" value="<%= settings.contactPhone %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Địa chỉ</label>
+                  <input type="text" class="form-control" name="address" value="<%= settings.address %>">
                 </div>
                 <button type="submit" class="btn btn-primary">Lưu cài đặt chung</button>
               </form>
@@ -78,30 +92,27 @@
         <div class="tab-pane fade" id="email" role="tabpanel">
           <div class="card">
             <div class="card-body">
-              <form id="emailSettingsForm">
-                <div class="mb-3">
-                  <label class="form-label">SMTP Host</label>
-                  <input type="text" class="form-control" name="smtpHost" value="<%= dashboard.settings.email.smtpHost %>">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">SMTP Port</label>
-                  <input type="number" class="form-control" name="smtpPort" value="<%= dashboard.settings.email.smtpPort %>">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">SMTP User</label>
-                  <input type="text" class="form-control" name="smtpUser" value="<%= dashboard.settings.email.smtpUser %>">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">SMTP Password</label>
-                  <input type="password" class="form-control" name="smtpPass" value="<%= dashboard.settings.email.smtpPass %>">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Email gửi</label>
-                  <input type="email" class="form-control" name="fromEmail" value="<%= dashboard.settings.email.fromEmail %>">
-                </div>
-                <button type="submit" class="btn btn-primary">Lưu cài đặt email</button>
-                <button type="button" class="btn btn-info" onclick="testEmail()">Gửi email thử nghiệm</button>
-              </form>
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Thông tin cấu hình email được lấy từ file .env. Vui lòng cập nhật file .env để thay đổi cài đặt email.
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SMTP Host</label>
+                <input type="text" class="form-control" value="<%= process.env.SMTP_HOST %>" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SMTP Port</label>
+                <input type="number" class="form-control" value="<%= process.env.SMTP_PORT %>" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SMTP User</label>
+                <input type="text" class="form-control" value="<%= process.env.SMTP_USER %>" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email gửi</label>
+                <input type="email" class="form-control" value="<%= process.env.SMTP_FROM %>" readonly>
+              </div>
+              <button type="button" class="btn btn-info" onclick="testEmail()">Gửi email thử nghiệm</button>
             </div>
           </div>
         </div>
@@ -113,71 +124,21 @@
               <form id="socialSettingsForm">
                 <div class="mb-3">
                   <label class="form-label">Facebook</label>
-                  <input type="url" class="form-control" name="facebook" value="<%= dashboard.settings.socialMedia.facebook %>">
+                  <input type="url" class="form-control" name="facebook" value="<%= settings.socialMedia.facebook %>">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Twitter</label>
-                  <input type="url" class="form-control" name="twitter" value="<%= dashboard.settings.socialMedia.twitter %>">
+                  <input type="url" class="form-control" name="twitter" value="<%= settings.socialMedia.twitter %>">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Instagram</label>
-                  <input type="url" class="form-control" name="instagram" value="<%= dashboard.settings.socialMedia.instagram %>">
+                  <input type="url" class="form-control" name="instagram" value="<%= settings.socialMedia.instagram %>">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">YouTube</label>
-                  <input type="url" class="form-control" name="youtube" value="<%= dashboard.settings.socialMedia.youtube %>">
+                  <input type="url" class="form-control" name="youtube" value="<%= settings.socialMedia.youtube %>">
                 </div>
                 <button type="submit" class="btn btn-primary">Lưu cài đặt mạng xã hội</button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- Security Settings -->
-        <div class="tab-pane fade" id="security" role="tabpanel">
-          <div class="card">
-            <div class="card-body">
-              <form id="securitySettingsForm">
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="maintenance" id="maintenanceSwitch" 
-                      <%= dashboard.settings.maintenance.enabled ? 'checked' : '' %>>
-                    <label class="form-check-label" for="maintenanceSwitch">Chế độ bảo trì</label>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Thông báo bảo trì</label>
-                  <textarea class="form-control" name="maintenanceMessage" rows="3"><%= dashboard.settings.maintenance.message %></textarea>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="registrationEnabled" id="registrationSwitch"
-                      <%= dashboard.settings.registration.enabled ? 'checked' : '' %>>
-                    <label class="form-check-label" for="registrationSwitch">Cho phép đăng ký</label>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="requireEmailVerification" id="emailVerificationSwitch"
-                      <%= dashboard.settings.registration.requireEmailVerification ? 'checked' : '' %>>
-                    <label class="form-check-label" for="emailVerificationSwitch">Yêu cầu xác thực email</label>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="commentsEnabled" id="commentsSwitch"
-                      <%= dashboard.settings.comments.enabled ? 'checked' : '' %>>
-                    <label class="form-check-label" for="commentsSwitch">Cho phép bình luận</label>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="requireCommentApproval" id="commentApprovalSwitch"
-                      <%= dashboard.settings.comments.requireApproval ? 'checked' : '' %>>
-                    <label class="form-check-label" for="commentApprovalSwitch">Yêu cầu duyệt bình luận</label>
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Lưu cài đặt bảo mật</button>
               </form>
             </div>
           </div>
@@ -188,7 +149,6 @@
 </div>
 
 <script>
-// Save General Settings
 document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const formData = new FormData(this);
@@ -201,6 +161,7 @@ document.getElementById('generalSettingsForm').addEventListener('submit', functi
   .then(data => {
     if (data.success) {
       alert('Đã lưu cài đặt chung');
+      location.reload(); 
     } else {
       alert(data.message || 'Lỗi khi lưu cài đặt');
     }
@@ -210,43 +171,28 @@ document.getElementById('generalSettingsForm').addEventListener('submit', functi
     alert('Lỗi khi lưu cài đặt');
   });
 });
-
-// Save Email Settings
-document.getElementById('emailSettingsForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  
-  fetch('/admin/settings/email', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Đã lưu cài đặt email');
-    } else {
-      alert(data.message || 'Lỗi khi lưu cài đặt');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Lỗi khi lưu cài đặt');
-  });
-});
-
-// Save Social Media Settings
+ 
 document.getElementById('socialSettingsForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const formData = new FormData(this);
+   
+  const data = {};
+  formData.forEach((value, key) => {
+    data[key] = value;
+  });
   
   fetch('/admin/settings/social', {
     method: 'POST',
-    body: formData
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
   })
   .then(response => response.json())
   .then(data => {
     if (data.success) {
       alert('Đã lưu cài đặt mạng xã hội');
+      location.reload();
     } else {
       alert(data.message || 'Lỗi khi lưu cài đặt');
     }
@@ -257,33 +203,13 @@ document.getElementById('socialSettingsForm').addEventListener('submit', functio
   });
 });
 
-// Save Security Settings
-document.getElementById('securitySettingsForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  
-  fetch('/admin/settings/security', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Đã lưu cài đặt bảo mật');
-    } else {
-      alert(data.message || 'Lỗi khi lưu cài đặt');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Lỗi khi lưu cài đặt');
-  });
-});
-
-// Test Email
+// Test Email 
 function testEmail() {
   fetch('/admin/settings/test-email', {
-    method: 'POST'
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
   })
   .then(response => response.json())
   .then(data => {
@@ -298,6 +224,18 @@ function testEmail() {
     alert('Lỗi khi gửi email');
   });
 }
+
+function previewImage(input, previewId) {
+  const preview = document.getElementById(previewId);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
 </script>
 
-<%- include('../layout/admin-footer') %> 
+</body>
+</html> 

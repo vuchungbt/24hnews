@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Middleware truyền thông tin user vào view
+
 const userToView = (req, res, next) => {
   res.locals.user = req.user;
   next();
@@ -9,28 +9,45 @@ const userToView = (req, res, next) => {
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // Lấy token từ cookie
+
     const token = req.cookies.token;
     
     if (!token) {
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Vui lòng đăng nhập để thực hiện thao tác này' 
+        });
+      }
       return res.status(401).redirect('/login');
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Tìm user
+
     const user = await User.findById(decoded.userId);
     
     if (!user) {
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Phiên đăng nhập đã hết hạn' 
+        });
+      }
       return res.status(401).redirect('/login');
     }
 
-    // Gán user vào request
+
     req.user = user;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Phiên đăng nhập đã hết hạn' 
+      });
+    }
     res.status(401).redirect('/login');
   }
 };
@@ -43,7 +60,7 @@ const adminMiddleware = (req, res, next) => {
   }
 };
 
-// Middleware kiểm tra đăng nhập
+
 const isAuthenticated = (req, res, next) => {
   if (req.session && req.session.userId) {
     return next();
@@ -52,7 +69,6 @@ const isAuthenticated = (req, res, next) => {
   res.redirect('/login');
 };
 
-// Middleware kiểm tra quyền admin
 const isAdmin = async (req, res, next) => {
   try {
     if (!req.user) {
@@ -73,7 +89,6 @@ const isAdmin = async (req, res, next) => {
   }
 };
 
-// Middleware kiểm tra quyền editor
 const isEditor = async (req, res, next) => {
   try {
     if (!req.user) {
@@ -94,7 +109,7 @@ const isEditor = async (req, res, next) => {
   }
 };
 
-// Middleware kiểm tra trạng thái tài khoản
+
 const checkAccountStatus = async (req, res, next) => {
   try {
     if (!req.user) {
@@ -117,11 +132,10 @@ const checkAccountStatus = async (req, res, next) => {
   }
 };
 
-// Middleware lưu lịch sử đăng nhập
+
 const logLoginHistory = async (req, res, next) => {
   try {
     if (req.user) {
-      // Chỉ cập nhật các trường cần thiết
       await User.findByIdAndUpdate(
         req.user._id,
         {

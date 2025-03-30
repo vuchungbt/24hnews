@@ -1,0 +1,343 @@
+<%- include('../layout/client-header') %>
+
+<div class="hero-section">
+  <div class="container">
+    <% if (featuredNews && featuredNews.length > 0) { %>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <% const mainFeatured = featuredNews[0] %>
+          <div class="main-featured glass-card h-100">
+            <div class="featured-image">
+              <img src="<%= mainFeatured.imageUrl ? mainFeatured.imageUrl.startsWith('/uploads/') ? mainFeatured.imageUrl : `/uploads/news/${mainFeatured.imageUrl}` : '/images/default-news.jpg' %>" 
+                   alt="<%= mainFeatured.title %>"
+                   onerror="this.src='/images/default-news.jpg'">
+              <div class="category-badge">
+                <%= mainFeatured.category.name %>
+              </div>
+            </div>
+            <div class="content">
+              <h2><a href="/news/<%= mainFeatured.slug %>"><%= mainFeatured.title %></a></h2>
+              <p class="excerpt"><%= mainFeatured.excerpt %></p>
+              <div class="meta">
+                <span><i class="fas fa-user"></i> <%= mainFeatured.author.username %></span>
+                <span><i class="fas fa-clock"></i> <%= new Date(mainFeatured.createdAt).toLocaleDateString('vi-VN') %></span>
+                <span><i class="fas fa-eye"></i> <%= mainFeatured.viewCount || 0 %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="row g-4">
+            <% featuredNews.slice(1, 5).forEach(news => { %>
+              <div class="col-sm-6">
+                <div class="sub-featured glass-card h-100">
+                  <div class="featured-image">
+                    <img src="<%= news.imageUrl ? news.imageUrl.startsWith('/uploads/') ? news.imageUrl : `/uploads/news/${news.imageUrl}` : '/images/default-news.jpg' %>"
+                         alt="<%= news.title %>"
+                         onerror="this.src='/images/default-news.jpg'">
+                    <div class="category-badge">
+                      <%= news.category.name %>
+                    </div>
+                  </div>
+                  <div class="content">
+                    <h3><a href="/news/<%= news.slug %>"><%= news.title %></a></h3>
+                    <div class="meta">
+                      <span><i class="fas fa-clock"></i> <%= new Date(news.createdAt).toLocaleDateString('vi-VN') %></span>
+                      <span><i class="fas fa-eye"></i> <%= news.viewCount || 0 %></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="main-content py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="latest-news glass-card p-4">
+          <h2 class="section-title">Tin tức mới nhất</h2>
+          <div class="row g-4">
+            <% latestNews.forEach(news => { %>
+              <div class="col-md-6">
+                <div class="news-card glass-card h-100">
+                  <div class="news-image">
+                    <img src="<%= news.imageUrl ? news.imageUrl.startsWith('/uploads/') ? news.imageUrl : `/uploads/news/${news.imageUrl}` : '/images/default-news.jpg' %>"
+                         alt="<%= news.title %>"
+                         onerror="this.src='/images/default-news.jpg'">
+                    <div class="category-badge">
+                      <%= news.category.name %>
+                    </div>
+                  </div>
+                  <div class="content">
+                    <h3><a href="/news/<%= news.slug %>"><%= news.title %></a></h3>
+                    <p class="excerpt"><%= news.excerpt %></p>
+                    <div class="meta">
+                      <span><i class="fas fa-user"></i> <%= news.author.username %></span>
+                      <span><i class="fas fa-clock"></i> <%= new Date(news.createdAt).toLocaleDateString('vi-VN') %></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="sidebar">
+          <div class="popular-tags glass-card p-4">
+            <h3 class="sidebar-title">Thẻ phổ biến</h3>
+            <div class="tags">
+              <% tags.forEach(tag => { %>
+                <a href="/tag/<%= tag.slug %>" class="tag-badge">
+                  <%= tag.name %>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 var(--glass-shadow);
+}
+
+.hero-section {
+  padding: 3rem 0;
+  background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d);
+  margin-bottom: 2rem;
+}
+
+.featured-image, .news-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+  aspect-ratio: 16/9;
+}
+
+.featured-image img, .news-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.sub-featured .featured-image {
+  aspect-ratio: 16/10;
+}
+
+.featured-image:hover img, .news-image:hover img {
+  transform: scale(1.05);
+}
+
+.category-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 123, 255, 0.9);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
+.content {
+  padding: 1.5rem;
+  background: var(--glass-bg);
+}
+
+.content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.content a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.content a:hover {
+  color: #007bff;
+}
+
+.meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.meta span {
+  margin-right: 1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.meta i {
+  margin-right: 5px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.section-title:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(to right, #007bff, #00ff88);
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--glass-border);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tag-badge {
+  background: var(--glass-bg);
+  color: #333;
+  padding: 8px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.tag-badge:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.excerpt {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.news-card .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card .excerpt {
+  flex: 1;
+}
+
+@media (max-width: 991.98px) {
+  .hero-section {
+    padding: 2rem 0;
+  }
+  
+  .featured-image, .news-image {
+    aspect-ratio: 16/10;
+  }
+  
+  .sub-featured .featured-image {
+    aspect-ratio: 16/11;
+  }
+  
+  .content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .featured-image, .news-image {
+    aspect-ratio: 16/12;
+  }
+  
+  .sub-featured .featured-image {
+    aspect-ratio: 16/12;
+  }
+  
+  .content {
+    padding: 1rem;
+  }
+  
+  .content h2 {
+    font-size: 1.3rem;
+  }
+  
+  .content h3 {
+    font-size: 1.1rem;
+  }
+}
+</style>
+
+<%- include('../layout/client-footer') %> 

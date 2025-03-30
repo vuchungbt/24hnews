@@ -1,5 +1,9 @@
 <%- include('../layout/admin-header') %>
 
+<!-- Thêm Bootstrap JS và jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
@@ -26,6 +30,8 @@
                   <th>ID</th>
                   <th>Tên danh mục</th>
                   <th>Slug</th>
+                  <th>Danh mục cha</th>
+                  <th>Cấp</th>
                   <th>Mô tả</th>
                   <th>Số bài viết</th>
                   <th>Thao tác</th>
@@ -35,8 +41,14 @@
                 <% categories.forEach(category => { %>
                   <tr>
                     <td><%= category._id %></td>
-                    <td><%= category.name %></td>
+                    <td>
+                      <span class="category-name" style="--level: <%= category.level %>">
+                        <%= category.name %>
+                      </span>
+                    </td>
                     <td><%= category.slug %></td>
+                    <td><%= category.parent ? category.parent.name : 'Không có' %></td>
+                    <td><%= category.level %></td>
                     <td><%= category.description %></td>
                     <td><%= category.postCount || 0 %></td>
                     <td>
@@ -75,6 +87,15 @@
             <input type="text" class="form-control" name="name" required>
           </div>
           <div class="mb-3">
+            <label class="form-label">Danh mục cha</label>
+            <select class="form-select" name="parent">
+              <option value="">Không có</option>
+              <% categories.filter(cat => cat.level === 0).forEach(category => { %>
+                <option value="<%= category._id %>"><%= category.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="mb-3">
             <label class="form-label">Mô tả</label>
             <textarea class="form-control" name="description" rows="3"></textarea>
           </div>
@@ -104,6 +125,15 @@
             <input type="text" class="form-control" name="name" required>
           </div>
           <div class="mb-3">
+            <label class="form-label">Danh mục cha</label>
+            <select class="form-select" name="parent">
+              <option value="">Không có</option>
+              <% categories.filter(cat => cat.level === 0).forEach(category => { %>
+                <option value="<%= category._id %>"><%= category.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="mb-3">
             <label class="form-label">Mô tả</label>
             <textarea class="form-control" name="description" rows="3"></textarea>
           </div>
@@ -117,13 +147,19 @@
   </div>
 </div>
 
+<style>
+.category-name {
+  display: inline-block;
+  padding-left: calc(var(--level) * 20px);
+}
+</style>
+
 <script>
-// Add Category
 function submitAddCategory() {
   const form = document.getElementById('addCategoryForm');
   const formData = new FormData(form);
   
-  fetch('/admin/categories/create', {
+  fetch('/api/categories/add', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -144,17 +180,27 @@ function submitAddCategory() {
   });
 }
 
-// Edit Category
 function editCategory(categoryId) {
-  fetch(`/admin/categories/${categoryId}`)
-    .then(response => response.json())
-    .then(category => {
-      const form = document.getElementById('editCategoryForm');
-      form.categoryId.value = category._id;
-      form.name.value = category.name;
-      form.description.value = category.description;
-      
-      new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+  fetch(`/api/categories/detail/${categoryId}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(result => {
+      if (result.success) {
+        const category = result.data;
+        const form = document.getElementById('editCategoryForm');
+        form.categoryId.value = category._id;
+        form.name.value = category.name;
+        form.parent.value = category.parent ? category.parent._id : '';
+        form.description.value = category.description || '';
+        
+        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+      } else {
+        alert(result.message || 'Lỗi khi tải thông tin danh mục');
+      }
     })
     .catch(error => {
       console.error('Error:', error);
@@ -167,7 +213,7 @@ function submitEditCategory() {
   const formData = new FormData(form);
   const categoryId = formData.get('categoryId');
   
-  fetch(`/admin/categories/edit/${categoryId}`, {
+  fetch(`/api/categories/update/${categoryId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -188,10 +234,9 @@ function submitEditCategory() {
   });
 }
 
-// Delete Category
 function deleteCategory(categoryId) {
-  if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
-    fetch(`/admin/categories/delete/${categoryId}`, {
+  if (confirm('Bạn có chắc chắn muốn xóa danh mục này? Tất cả danh mục con cũng sẽ bị xóa.')) {
+    fetch(`/api/categories/delete/${categoryId}`, {
       method: 'GET'
     })
     .then(response => response.json())
@@ -208,6 +253,20 @@ function deleteCategory(categoryId) {
     });
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const addModal = document.getElementById('addCategoryModal');
+  const editModal = document.getElementById('editCategoryModal');
+  
+  addModal.addEventListener('hidden.bs.modal', function () {
+    document.getElementById('addCategoryForm').reset();
+  });
+  
+  editModal.addEventListener('hidden.bs.modal', function () {
+    document.getElementById('editCategoryForm').reset();
+  });
+});
 </script>
 
-<%- include('../layout/admin-footer') %>
+</body>
+</html>

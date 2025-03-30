@@ -20,7 +20,7 @@ const settingsSchema = new mongoose.Schema({
   },
   contactEmail: {
     type: String,
-    default: 'contact@example.com'
+    default: 'contact@thien.com'
   },
   contactPhone: {
     type: String,
@@ -28,7 +28,7 @@ const settingsSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    default: 'Hà Nội, Việt Nam'
+    default: 'Đà Nẵng, Việt Nam'
   },
   socialMedia: {
     facebook: String,
@@ -87,8 +87,7 @@ const settingsSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Methods
+ 
 settingsSchema.methods.updateSettings = async function(newSettings) {
   try {
     Object.assign(this, newSettings);
@@ -100,8 +99,7 @@ settingsSchema.methods.updateSettings = async function(newSettings) {
     throw error;
   }
 };
-
-// Static methods
+ 
 settingsSchema.statics.getSettings = async function() {
   try {
     let settings = await this.findOne();

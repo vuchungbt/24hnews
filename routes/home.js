@@ -2,74 +2,99 @@ const express = require('express');
 const router = express.Router();
 const News = require('../models/News');
 const Category = require('../models/Category');
+const Tag = require('../models/Tag');
 const mongoose = require('mongoose');
 const { authMiddleware } = require('../middleware/auth');
+const { getCategoriesHierarchy } = require('../utils/categoryUtils');
+const Settings = require('../models/Settings');
 
-// Trang chủ
+// Home page
 router.get('/', async (req, res) => {
-  try {
+  try { 
+    const categories = await getCategoriesHierarchy();
+    const settings = await Settings.getSettings();
+     
+    const featuredNews = await News.find({ status: 'published' })
+      .sort({ viewCount: -1 })
+      .limit(6)
+      .populate('author', 'username')
+      .populate('category', 'name')
+      .populate('tags', 'name');
+       
     const latestNews = await News.find({ status: 'published' })
-      .populate('category')
-      .sort({ publishedAt: -1, createdAt: -1 })
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .populate('author', 'username')
+      .populate('category', 'name')
+      .populate('tags', 'name');
+ 
+    const tags = await Tag.find()
+      .sort({ useCount: -1 })
       .limit(10);
-
-    const categories = await Category.find().sort({ name: 1 });
-
-    // Đếm số bài viết trong mỗi danh mục
-    for (let i = 0; i < categories.length; i++) {
-      const count = await News.countDocuments({ 
-        category: categories[i]._id,
-        status: 'published'
-      });
-      categories[i] = {
-        ...categories[i]._doc,
-        count
-      };
-    }
-
-    res.render('client/index', {
-      latestNews,
+      
+    res.render('client/home', {
+      title: 'Trang chủ',
       categories,
+      featuredNews,
+      latestNews,
+      tags,
       user: req.user,
-      title: 'Trang chủ'
+      settings
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('error', { message: 'Lỗi máy chủ' });
+    console.error('Error loading home page:', error);
+    res.status(500).render('error', { message: 'Lỗi khi tải trang chủ' });
   }
 });
-
-// Trang đăng nhập
-router.get('/login', (req, res) => {
+ 
+router.get('/login', async (req, res) => {
   if (req.user) {
     return res.redirect('/');
   }
-  res.render('client/login', { 
-    user: req.user,
-    title: 'Đăng nhập'
-  });
+  try {
+    const categories = await getCategoriesHierarchy();
+    const settings = await Settings.getSettings();
+    res.render('client/login', { 
+      user: req.user,
+      title: 'Đăng nhập',
+      categories,
+      settings
+    });
+  } catch (error) {
+    console.error('Error loading login page:', error);
+    res.status(500).render('error', { message: 'Lỗi khi tải trang đăng nhập' });
+  }
 });
-
-// Trang đăng ký
-router.get('/register', (req, res) => {
+ 
+router.get('/register', async (req, res) => {
   if (req.user) {
     return res.redirect('/');
   }
-  res.render('client/register', { 
-    user: req.user,
-    title: 'Đăng ký'
-  });
+  try {
+    const categories = await getCategoriesHierarchy();
+    const settings = await Settings.getSettings();
+    res.render('client/register', { 
+      user: req.user,
+      title: 'Đăng ký',
+      categories,
+      settings
+    });
+  } catch (error) {
+    console.error('Error loading register page:', error);
+    res.status(500).render('error', { message: 'Lỗi khi tải trang đăng ký' });
+  }
 });
-
-// Trang profile người dùng
+ 
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
-    const categories = await Category.find().sort({ name: 1 });
+    const categories = await getCategoriesHierarchy();
+    const settings = await Settings.getSettings();
     
     res.render('client/profile', {
       user: req.user,
       categories,
-      title: 'Hồ sơ cá nhân'
+      title: 'Hồ sơ cá nhân',
+      settings
     });
   } catch (error) {
     console.error(error);
@@ -79,22 +104,23 @@ router.get('/profile', authMiddleware, async (req, res) => {
     });
   }
 });
-
-// Trang chi tiết bài viết
+ 
 router.get('/news/:id', async (req, res) => {
   try {
     const newsId = req.params.id;
-    
-    // Tìm bài viết theo ID hoặc slug
+    const settings = await Settings.getSettings();
+     
     let news;
     if (mongoose.Types.ObjectId.isValid(newsId)) {
       news = await News.findById(newsId)
         .populate('category')
-        .populate('author', 'username');
+        .populate('author', 'username')
+        .populate('tags', 'name');
     } else {
       news = await News.findOne({ slug: newsId })
         .populate('category')
-        .populate('author', 'username');
+        .populate('author', 'username')
+        .populate('tags', 'name');
     }
 
     if (!news) {
@@ -102,13 +128,10 @@ router.get('/news/:id', async (req, res) => {
         message: 'Không tìm thấy bài viết',
         user: req.user
       });
-    }
-
-    // Tăng lượt xem
+    } 
     news.viewCount = (news.viewCount || 0) + 1;
     await news.save();
-
-    // Lấy các bài viết liên quan cùng danh mục
+ 
     const relatedNews = await News.find({
       category: news.category._id,
       _id: { $ne: news._id },
@@ -116,21 +139,9 @@ router.get('/news/:id', async (req, res) => {
     })
     .sort({ publishedAt: -1, createdAt: -1 })
     .limit(4);
-
-    // Lấy danh sách danh mục kèm số lượng bài viết
-    const categories = await Category.find().sort({ name: 1 });
-    for (let i = 0; i < categories.length; i++) {
-      const count = await News.countDocuments({ 
-        category: categories[i]._id,
-        status: 'published'
-      });
-      categories[i] = {
-        ...categories[i]._doc,
-        count
-      };
-    }
-
-    // Lấy tin mới nhất cho sidebar
+ 
+    const categories = await getCategoriesHierarchy();
+ 
     const latestNews = await News.find({ 
       status: 'published',
       _id: { $ne: news._id }
@@ -144,7 +155,8 @@ router.get('/news/:id', async (req, res) => {
       categories,
       latestNews,
       user: req.user,
-      title: news.title
+      title: news.title,
+      settings
     });
   } catch (error) {
     console.error(error);
@@ -154,41 +166,98 @@ router.get('/news/:id', async (req, res) => {
     });
   }
 });
-
-// Trang danh mục
+ 
 router.get('/category/:slug', async (req, res) => {
   try {
+    const categories = await getCategoriesHierarchy();
     const category = await Category.findOne({ slug: req.params.slug });
+    const settings = await Settings.getSettings();
     
     if (!category) {
       return res.status(404).render('error', { 
         message: 'Không tìm thấy danh mục',
         user: req.user
       });
-    }
-
+    } 
+    const childCategories = await Category.find({ parent: category._id });
+    const childCategoryIds = childCategories.map(cat => cat._id);
+     
     const news = await News.find({
-      category: category._id,
+      $or: [
+        { category: category._id },
+        { category: { $in: childCategoryIds } }
+      ],
       status: 'published'
     })
-    .sort({ publishedAt: -1, createdAt: -1 });
-
-    // Lấy danh sách tất cả danh mục
-    const categories = await Category.find().sort({ name: 1 });
-
+    .sort({ createdAt: -1 })
+    .populate('author', 'username')
+    .populate('category', 'name')
+    .populate('tags', 'name');
+    
     res.render('client/category', {
+      title: category.name,
+      categories,
       category,
       news,
-      categories,
       user: req.user,
-      title: category.name
+      settings
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('error', { 
-      message: 'Lỗi máy chủ',
-      user: req.user
+    console.error('Error loading category page:', error);
+    res.status(500).render('error', { message: 'Lỗi khi tải trang danh mục' });
+  }
+});
+ 
+router.get('/tag/:slug', async (req, res) => {
+  try {
+    const categories = await getCategoriesHierarchy();
+    const tag = await Tag.findOne({ slug: req.params.slug });
+    const settings = await Settings.getSettings();
+    
+    if (!tag) {
+      return res.status(404).render('error', { 
+        message: 'Không tìm thấy thẻ',
+        user: req.user
+      });
+    }
+     
+    const news = await News.find({
+      tags: tag._id,
+      status: 'published'
+    })
+    .sort({ createdAt: -1 })
+    .populate('author', 'username')
+    .populate('category', 'name')
+    .populate('tags', 'name');
+ 
+    const tags = await Tag.find()
+      .sort({ newsCount: -1 })
+      .limit(10);
+ 
+    const tagsWithCount = await Promise.all(tags.map(async (tag) => {
+      const count = await News.countDocuments({
+        tags: tag._id,
+        status: 'published'
+      });
+      return {
+        ...tag.toObject(),
+        newsCount: count
+      };
+    }));
+    
+    res.render('client/tag', {
+      title: `Tin tức với thẻ "${tag.name}"`,
+      categories,
+      tag,
+      currentTag: tag,
+      news,
+      tags: tagsWithCount,
+      user: req.user,
+      settings
     });
+  } catch (error) {
+    console.error('Error loading tag page:', error);
+    res.status(500).render('error', { message: 'Lỗi khi tải trang thẻ' });
   }
 });
 

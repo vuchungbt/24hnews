@@ -1,6 +1,4 @@
-// Admin Dashboard JavaScript
-
-// Initialize tooltips
+// Admin Dashboard 
 document.addEventListener('DOMContentLoaded', function() {
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -8,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Initialize popovers
+
 document.addEventListener('DOMContentLoaded', function() {
   var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
   var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
@@ -16,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Auto-hide alerts after 5 seconds
 document.addEventListener('DOMContentLoaded', function() {
   var alerts = document.querySelectorAll('.alert');
   alerts.forEach(function(alert) {
@@ -27,14 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Confirm delete actions
+
 function confirmDelete(event) {
   if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) {
     event.preventDefault();
   }
 }
 
-// Toggle sidebar on mobile
 document.addEventListener('DOMContentLoaded', function() {
   var sidebarToggle = document.querySelector('.sidebar-toggle');
   if (sidebarToggle) {
@@ -44,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Image preview
+
 function previewImage(input) {
   if (input.files && input.files[0]) {
     var reader = new FileReader();
@@ -55,7 +51,7 @@ function previewImage(input) {
   }
 }
 
-// Form validation
+
 (function() {
   'use strict';
   
@@ -73,7 +69,6 @@ function previewImage(input) {
   });
 })();
 
-// Dynamic table search
 function searchTable(input, tableId) {
   var filter = input.value.toLowerCase();
   var table = document.getElementById(tableId);
@@ -98,7 +93,7 @@ function searchTable(input, tableId) {
   }
 }
 
-// Dynamic table sorting
+
 function sortTable(tableId, column) {
   var table = document.getElementById(tableId);
   var tbody = table.getElementsByTagName('tbody')[0];
@@ -116,9 +111,7 @@ function sortTable(tableId, column) {
   });
 }
 
-// Chart initialization
 function initCharts() {
-  // Example chart initialization
   var ctx = document.getElementById('myChart').getContext('2d');
   var myChart = new Chart(ctx, {
     type: 'line',
@@ -138,7 +131,6 @@ function initCharts() {
   });
 }
 
-// Initialize charts when document is ready
 document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('myChart')) {
     initCharts();

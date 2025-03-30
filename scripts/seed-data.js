@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const User = require('../models/User');
 const Category = require('../models/Category');
 const News = require('../models/News');
+const Tag = require('../models/Tag');
 
 // Dữ liệu mẫu
 const seedData = async () => {
@@ -24,25 +25,73 @@ const seedData = async () => {
     await User.deleteMany({});
     await Category.deleteMany({});
     await News.deleteMany({});
+    await Tag.deleteMany({});
 
     // Tạo người dùng
-    const adminPassword = await bcrypt.hash('admin123', 10);
     const admin = await User.create({
       username: 'admin',
       email: 'admin@example.com',
-      password: adminPassword,
+      password: 'admin123',
       fullName: 'Administrator',
       role: 'admin',
-      status: 'active'
+      status: 'active',
+      isEmailVerified: true,
+      avatar: '/images/default-avatar.png',
+      preferences: {
+        emailNotifications: true,
+        theme: 'system'
+      },
+      bio: 'Quản trị viên hệ thống',
+      phone: '0123456789',
+      address: 'Hà Nội, Việt Nam',
+      activities: [{
+        action: 'Tạo tài khoản',
+        details: 'Tài khoản được tạo thông qua seed data'
+      }]
+    });
+
+    const editor = await User.create({
+      username: 'editor',
+      email: 'editor@example.com',
+      password: 'editor123',
+      fullName: 'Editor User',
+      role: 'editor',
+      status: 'active',
+      isEmailVerified: true,
+      avatar: '/images/default-avatar.png',
+      preferences: {
+        emailNotifications: true,
+        theme: 'system'
+      },
+      bio: 'Biên tập viên',
+      phone: '0987654321',
+      address: 'TP.HCM, Việt Nam',
+      activities: [{
+        action: 'Tạo tài khoản',
+        details: 'Tài khoản được tạo thông qua seed data'
+      }]
     });
 
     const user = await User.create({
-      username: 'journalist',
-      email: 'journalist@example.com',
-      password: await bcrypt.hash('author123', 10),
-      fullName: 'Journalist User',
+      username: 'user',
+      email: 'user@example.com',
+      password: 'user123',
+      fullName: 'Normal User',
       role: 'user',
-      status: 'active'
+      status: 'active',
+      isEmailVerified: true,
+      avatar: '/images/default-avatar.png',
+      preferences: {
+        emailNotifications: true,
+        theme: 'system'
+      },
+      bio: 'Người dùng thông thường',
+      phone: '0369852147',
+      address: 'Đà Nẵng, Việt Nam',
+      activities: [{
+        action: 'Tạo tài khoản',
+        details: 'Tài khoản được tạo thông qua seed data'
+      }]
     });
 
     // Tạo danh mục
@@ -64,6 +113,13 @@ const seedData = async () => {
       }
     ]);
 
+    // Tạo tags
+    const tags = await Tag.create([
+      { name: 'hot', slug: 'hot' },
+      { name: 'popular', slug: 'popular' },
+      { name: 'advertisement', slug: 'advertisement' }
+    ]);
+
     // Tạo bài viết mẫu
     await News.create([
       {
@@ -72,7 +128,7 @@ const seedData = async () => {
         author: admin._id,
         category: categories[0]._id,
         status: 'published',
-        tags: ['hot', 'popular'],
+        tags: [tags[0]._id, tags[1]._id],
         featuredImage: '/images/ai-tech.jpg',
         publishedAt: new Date(),
         viewCount: 1500
@@ -80,10 +136,10 @@ const seedData = async () => {
       {
         title: 'Startup Việt Gọi Vốn Thành Công',
         content: 'Một startup công nghệ Việt Nam vừa nhận được khoản đầu tư lớn từ quỹ ngoại...',
-        author: user._id,
+        author: editor._id,
         category: categories[1]._id,
         status: 'published',
-        tags: ['popular'],
+        tags: [tags[1]._id],
         featuredImage: '/images/startup-funding.jpg',
         publishedAt: new Date(),
         viewCount: 1200
@@ -94,7 +150,7 @@ const seedData = async () => {
         author: admin._id,
         category: categories[2]._id,
         status: 'published',
-        tags: ['hot'],
+        tags: [tags[0]._id],
         featuredImage: '/images/vietnamese-cinema.jpg',
         publishedAt: new Date(),
         viewCount: 980
@@ -102,10 +158,10 @@ const seedData = async () => {
       {
         title: 'Xu Hướng Công Nghệ 2024',
         content: 'Những xu hướng công nghệ dự báo sẽ thống trị trong năm 2024...',
-        author: user._id,
+        author: editor._id,
         category: categories[0]._id,
         status: 'published',
-        tags: ['advertisement'],
+        tags: [tags[2]._id],
         featuredImage: '/images/tech-trends.jpg',
         publishedAt: new Date(),
         viewCount: 750

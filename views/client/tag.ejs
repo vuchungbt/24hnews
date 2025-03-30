@@ -1,0 +1,244 @@
+<%- include('../layout/client-header') %>
+
+<div class="container mt-5">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <div class="glass-card p-4">
+        <h1 class="mb-4">Tin tức với thẻ "<%= tag.name %>"</h1>
+        
+        <% if (news && news.length > 0) { %>
+          <div class="row g-4">
+            <% news.forEach(article => { %>
+              <div class="col-md-6">
+                <div class="news-card glass-card h-100">
+                  <div class="news-image">
+                    <img src="<%= article.imageUrl ? article.imageUrl.startsWith('/uploads/') ? article.imageUrl : `/uploads/news/${article.imageUrl}` : '/images/default-news.jpg' %>"
+                         alt="<%= article.title %>"
+                         onerror="this.src='/images/default-news.jpg'">
+                    <div class="category-badge">
+                      <%= article.category.name %>
+                    </div>
+                  </div>
+                  <div class="content">
+                    <h3><a href="/news/<%= article.slug %>"><%= article.title %></a></h3>
+                    <p class="excerpt"><%= article.excerpt %></p>
+                    <div class="meta">
+                      <span><i class="fas fa-user"></i> <%= article.author.username %></span>
+                      <span><i class="fas fa-clock"></i> <%= new Date(article.createdAt).toLocaleDateString('vi-VN') %></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-5">
+            <i class="fas fa-tag fa-3x mb-3 text-muted"></i>
+            <p class="text-muted">Chưa có bài viết nào với thẻ này</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="sidebar">
+        <!-- Popular Tags -->
+        <div class="popular-tags glass-card p-4 mb-4">
+          <h3 class="sidebar-title">Thẻ phổ biến</h3>
+          <div class="tags">
+            <% tags.forEach(tag => { %>
+              <a href="/tag/<%= tag.slug %>" class="tag-badge <%= tag._id.toString() === currentTag._id.toString() ? 'active' : '' %>">
+                <%= tag.name %>
+                <span class="badge bg-light text-dark ms-2"><%= tag.newsCount || 0 %></span>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 var(--glass-shadow);
+}
+
+.news-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+  aspect-ratio: 16/9;
+}
+
+.news-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.news-image:hover img {
+  transform: scale(1.05);
+}
+
+.category-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 123, 255, 0.9);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
+.content {
+  padding: 1.5rem;
+  background: var(--glass-bg);
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.content a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.content a:hover {
+  color: #007bff;
+}
+
+.meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.meta span {
+  margin-right: 1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.meta i {
+  margin-right: 5px;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--glass-border);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tag-badge {
+  background: var(--glass-bg);
+  color: #333;
+  padding: 8px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.tag-badge:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.excerpt {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.news-card .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card .excerpt {
+  flex: 1;
+}
+
+@media (max-width: 991.98px) {
+  .news-image {
+    aspect-ratio: 16/10;
+  }
+  
+  .content h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .news-image {
+    aspect-ratio: 16/12;
+  }
+  
+  .content {
+    padding: 1rem;
+  }
+  
+  .content h3 {
+    font-size: 1rem;
+  }
+}
+</style>
+
+<%- include('../layout/client-footer') %> 

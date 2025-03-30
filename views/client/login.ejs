@@ -1,4 +1,4 @@
-<%- include('../layout/header') %>
+<%- include('../layout/client-header') %>
 
 <div class="container mt-4">
   <div class="row justify-content-center">
@@ -6,6 +6,7 @@
       <div class="card">
         <div class="card-header">Đăng Nhập</div>
         <div class="card-body">
+          <div id="errorMessage" class="alert alert-danger d-none"></div>
           <form id="loginForm">
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
@@ -31,8 +32,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+  const errorMessage = document.getElementById('errorMessage');
 
   try {
+    console.log('Sending login request with:', { email, password });
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -41,23 +44,26 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ email, password })
     });
 
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
 
     if (response.ok) {
-      alert('Đăng nhập thành công!');
       if (data.user && data.user.role === 'admin') {
         window.location.href = '/admin/dashboard';
       } else {
         window.location.href = '/';
       }
     } else {
-      alert(data.message || 'Đăng nhập thất bại');
+      errorMessage.textContent = data.message || 'Đăng nhập thất bại';
+      errorMessage.classList.remove('d-none');
     }
   } catch (error) {
     console.error('Error:', error);
-    alert('Đã xảy ra lỗi');
+    errorMessage.textContent = 'Đã xảy ra lỗi khi đăng nhập';
+    errorMessage.classList.remove('d-none');
   }
 });
 </script>
 
-<%- include('../layout/footer') %>
+<%- include('../layout/client-footer') %>

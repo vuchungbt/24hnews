@@ -1,0 +1,135 @@
+<nav class="category-menu">
+  <div class="container">
+    <ul class="menu-list">
+      <% if (typeof categories !== 'undefined' && categories) { %>
+        <% categories.forEach(category => { %>
+          <% if (!category.parent) { %>
+            <li class="menu-item <%= category.children && category.children.length > 0 ? 'has-submenu' : '' %>">
+              <a href="/category/<%= category.slug %>" class="menu-link">
+                <%= category.name %>
+                <% if (category.children && category.children.length > 0) { %>
+                  <i class="fas fa-chevron-down"></i>
+                <% } %>
+              </a>
+              <% if (category.children && category.children.length > 0) { %>
+                <ul class="submenu">
+                  <% category.children.forEach(child => { %>
+                    <li class="menu-item">
+                      <a href="/category/<%= child.slug %>" class="menu-link">
+                        <%= child.name %>
+                      </a>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } %>
+            </li>
+          <% } %>
+        <% }); %>
+      <% } %>
+    </ul>
+  </div>
+</nav>
+
+<style>
+.category-menu {
+  position: relative;
+  z-index: 1020;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.menu-item {
+  position: relative;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.menu-link i {
+  margin-left: 5px;
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover > .menu-link {
+  color: #007bff;
+}
+
+.menu-item:hover > .menu-link i {
+  transform: rotate(-180deg);
+}
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  min-width: 200px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1021;
+}
+
+.menu-item:hover > .submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.submenu .menu-item {
+  width: 100%;
+}
+
+.submenu .menu-link {
+  padding: 12px 20px;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .menu-list {
+    flex-direction: column;
+  }
+
+  .submenu {
+    position: static;
+    display: none;
+    box-shadow: none;
+    padding-left: 20px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .menu-item:hover > .submenu {
+    display: block;
+  }
+
+  .menu-link {
+    justify-content: space-between;
+  }
+}
+</style> 

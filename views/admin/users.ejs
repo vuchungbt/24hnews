@@ -1,39 +1,12 @@
 <%- include('../layout/admin-header') %>
 
+<!-- Thêm Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
-    <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
-      <div class="position-sticky">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/dashboard">
-              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active text-white" href="/admin/users">
-              <i class="fas fa-users me-2"></i>Quản lý người dùng
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/news">
-              <i class="fas fa-newspaper me-2"></i>Quản lý tin tức
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/categories">
-              <i class="fas fa-folder me-2"></i>Quản lý danh mục
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/admin/settings">
-              <i class="fas fa-cog me-2"></i>Cài đặt hệ thống
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
+    <%- include('../layout/admin-sidebar') %>
 
     <!-- Main content -->
     <main class="col-md-10 ms-sm-auto px-md-4">
@@ -121,9 +94,11 @@
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="editUser('<%= user._id %>')">
                           <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteUser('<%= user._id %>')">
-                          <i class="fas fa-trash"></i>
-                        </button>
+                        <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin' && user.role !== 'admin' && user._id.toString() !== currentUser._id.toString()) { %>
+                          <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteUser('<%= user._id %>', '<%= user.username %>')">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        <% } %>
                       </div>
                     </td>
                   </tr>
@@ -146,7 +121,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="addUserForm">
+        <form id="addUserForm" onsubmit="event.preventDefault(); submitAddUser();">
           <div class="mb-3">
             <label class="form-label">Tên người dùng</label>
             <input type="text" class="form-control" name="username" required>
@@ -167,11 +142,11 @@
               <option value="admin">Admin</option>
             </select>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary" id="submitAddUserBtn">Thêm</button>
+          </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" onclick="submitAddUser()">Thêm</button>
       </div>
     </div>
   </div>
@@ -186,7 +161,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="editUserForm">
+        <form id="editUserForm" onsubmit="event.preventDefault(); submitEditUser();">
           <input type="hidden" name="userId">
           <div class="mb-3">
             <label class="form-label">Tên người dùng</label>
@@ -216,11 +191,11 @@
               <option value="banned">Bị khóa</option>
             </select>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary" id="submitEditUserBtn">Cập nhật</button>
+          </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" onclick="submitEditUser()">Cập nhật</button>
       </div>
     </div>
   </div>
@@ -230,8 +205,13 @@
 // Add User
 function submitAddUser() {
   const form = document.getElementById('addUserForm');
+  const submitBtn = document.getElementById('submitAddUserBtn');
   const formData = new FormData(form);
-  
+   
+  const originalBtnText = submitBtn.innerHTML;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
   fetch('/admin/users/create', {
     method: 'POST',
     headers: {
@@ -241,15 +221,45 @@ function submitAddUser() {
   })
   .then(response => response.json())
   .then(data => {
-    if (data.success) {
-      location.reload();
-    } else {
-      alert(data.message || 'Lỗi khi thêm người dùng');
+    if (data.success) { 
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${data.message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      form.insertAdjacentElement('beforebegin', alertDiv);
+       
+      form.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+      modal.hide();
+       
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else { 
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${data.message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      form.insertAdjacentElement('beforebegin', alertDiv);
     }
   })
   .catch(error => {
-    console.error('Error:', error);
-    alert('Lỗi khi thêm người dùng');
+    console.error('Error:', error); 
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    alertDiv.innerHTML = `
+      Lỗi khi thêm người dùng. Vui lòng thử lại sau.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    form.insertAdjacentElement('beforebegin', alertDiv);
+  })
+  .finally(() => { 
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnText;
   });
 }
 
@@ -275,9 +285,14 @@ function editUser(userId) {
 
 function submitEditUser() {
   const form = document.getElementById('editUserForm');
+  const submitBtn = document.getElementById('submitEditUserBtn');
   const formData = new FormData(form);
   const userId = formData.get('userId');
-  
+   
+  const originalBtnText = submitBtn.innerHTML;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
   fetch(`/admin/users/${userId}`, {
     method: 'PUT',
     headers: {
@@ -287,38 +302,101 @@ function submitEditUser() {
   })
   .then(response => response.json())
   .then(data => {
-    if (data.success) {
-      location.reload();
-    } else {
-      alert(data.message || 'Lỗi khi cập nhật người dùng');
+    if (data.success) { 
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-success alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${data.message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      form.insertAdjacentElement('beforebegin', alertDiv);
+       
+      form.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+      modal.hide();
+       
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else { 
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${data.message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      form.insertAdjacentElement('beforebegin', alertDiv);
     }
   })
   .catch(error => {
-    console.error('Error:', error);
-    alert('Lỗi khi cập nhật người dùng');
+    console.error('Error:', error); 
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    alertDiv.innerHTML = `
+      Lỗi khi cập nhật thông tin người dùng. Vui lòng thử lại sau.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    form.insertAdjacentElement('beforebegin', alertDiv);
+  })
+  .finally(() => { 
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnText;
   });
 }
 
 // Delete User
-function deleteUser(userId) {
-  if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+function deleteUser(userId, username) {
+  if (confirm(`Bạn có chắc chắn muốn xóa người dùng "${username}"?`)) {
+    const deleteBtn = event.currentTarget;
+    const originalBtnHtml = deleteBtn.innerHTML;
+ 
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
     fetch(`/admin/users/${userId}`, {
       method: 'DELETE'
     })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert(data.message || 'Lỗi khi xóa người dùng');
+      if (data.success) { 
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          ${data.message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.card-body').insertAdjacentElement('afterbegin', alertDiv);
+         
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else { 
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          ${data.message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.card-body').insertAdjacentElement('afterbegin', alertDiv);
       }
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert('Lỗi khi xóa người dùng');
+      console.error('Error:', error); 
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        Lỗi khi xóa người dùng. Vui lòng thử lại sau.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.querySelector('.card-body').insertAdjacentElement('afterbegin', alertDiv);
+    })
+    .finally(() => { 
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = originalBtnHtml;
     });
   }
 }
 </script>
 
-<%- include('../layout/admin-footer') %>
+</body>
+</html>

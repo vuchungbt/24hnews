@@ -1,20 +1,15 @@
 const mongoose = require('mongoose');
-const Post = require('./Post');
+const News = require('./News');
 const User = require('./User');
-const Comment = require('./Comment');
+const Category = require('./Category');
 
 const dashboardSchema = new mongoose.Schema({
-  // Thống kê tổng quan
   statistics: {
     totalUsers: {
       type: Number,
       default: 0
     },
     totalNews: {
-      type: Number,
-      default: 0
-    },
-    totalComments: {
       type: Number,
       default: 0
     },
@@ -25,34 +20,41 @@ const dashboardSchema = new mongoose.Schema({
     lastUpdated: Date
   },
   
-  // Thống kê theo thời gian
   timeStats: {
     daily: [{
       date: Date,
       users: Number,
       news: Number,
-      comments: Number,
-      views: Number
+      views: Number,
+      categories: [{
+        name: String,
+        count: Number
+      }]
     }],
     weekly: [{
       week: Number,
       year: Number,
       users: Number,
       news: Number,
-      comments: Number,
-      views: Number
+      views: Number,
+      categories: [{
+        name: String,
+        count: Number
+      }]
     }],
     monthly: [{
       month: Number,
       year: Number,
       users: Number,
       news: Number,
-      comments: Number,
-      views: Number
+      views: Number,
+      categories: [{
+        name: String,
+        count: Number
+      }]
     }]
   },
   
-  // Cài đặt hệ thống
   settings: {
     siteName: {
       type: String,
@@ -67,37 +69,9 @@ const dashboardSchema = new mongoose.Schema({
       twitter: String,
       instagram: String,
       youtube: String
-    },
-    maintenance: {
-      enabled: {
-        type: Boolean,
-        default: false
-      },
-      message: String
-    },
-    registration: {
-      enabled: {
-        type: Boolean,
-        default: true
-      },
-      requireEmailVerification: {
-        type: Boolean,
-        default: true
-      }
-    },
-    comments: {
-      enabled: {
-        type: Boolean,
-        default: true
-      },
-      requireApproval: {
-        type: Boolean,
-        default: true
-      }
     }
   },
   
-  // Backup settings
   backup: {
     enabled: {
       type: Boolean,
@@ -111,89 +85,74 @@ const dashboardSchema = new mongoose.Schema({
     lastBackup: Date,
     backupPath: String
   },
-  
-  // Cache settings
-  cache: {
-    enabled: {
-      type: Boolean,
-      default: true
-    },
-    duration: {
-      type: Number,
-      default: 3600 // 1 hour in seconds
-    },
-    lastCleared: Date
-  },
 
-  totalPosts: {
-    type: Number,
-    default: 0
-  },
-  totalUsers: {
-    type: Number,
-    default: 0
-  },
-  totalComments: {
-    type: Number,
-    default: 0
-  },
-  pendingComments: {
-    type: Number,
-    default: 0
-  },
-  recentPosts: [{
+  recentNews: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Post'
+    ref: 'News'
   }],
   recentUsers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  recentComments: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment'
-  }],
   lastUpdated: {
     type: Date,
     default: Date.now
-  }
+  },
+  categories: [{
+    name: String,
+    postCount: Number
+  }]
 }, {
   timestamps: true
 });
 
-// Method to update statistics
 dashboardSchema.methods.updateStatistics = async function() {
-  try {
-    // Cập nhật tổng số bài viết
-    this.totalPosts = await Post.countDocuments();
-    
-    // Cập nhật tổng số người dùng
-    this.totalUsers = await User.countDocuments();
-    
-    // Cập nhật tổng số bình luận
-    this.totalComments = await Comment.countDocuments();
-    
-    // Cập nhật số bình luận đang chờ duyệt
-    this.pendingComments = await Comment.countDocuments({ status: 'pending' });
-    
-    // Cập nhật bài viết gần đây
-    this.recentPosts = await Post.find()
+  try { 
+    this.statistics = {
+      totalUsers: await User.countDocuments(),
+      totalNews: await News.countDocuments(),
+      totalViews: await News.aggregate([
+        { $group: { _id: null, total: { $sum: "$viewCount" } } }
+      ]).then(result => result[0]?.total || 0),
+      lastUpdated: new Date()
+    };
+
+    this.categories = await Category.aggregate([
+      {
+        $lookup: {
+          from: 'news',
+          localField: '_id',
+          foreignField: 'category',
+          as: 'news'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          slug: 1,
+          postCount: { $size: '$news' }
+        }
+      },
+      { $sort: { postCount: -1 } }
+    ]);
+
+    for (const category of this.categories) {
+      await Category.findByIdAndUpdate(category._id, {
+        postCount: category.postCount
+      });
+    }
+
+    this.recentNews = await News.find()
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('title createdAt');
+      .populate('author', 'username')
+      .select('title createdAt author');
     
-    // Cập nhật người dùng gần đây
     this.recentUsers = await User.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .select('username createdAt');
-    
-    // Cập nhật bình luận gần đây
-    this.recentComments = await Comment.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate('author', 'username')
-      .populate('post', 'title');
     
     this.lastUpdated = new Date();
     await this.save();
@@ -205,38 +164,228 @@ dashboardSchema.methods.updateStatistics = async function() {
   }
 };
 
-// Method to update time-based statistics
 dashboardSchema.methods.updateTimeStats = async function() {
   const today = new Date();
-  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-  
-  const User = mongoose.model('User');
-  const News = mongoose.model('News');
-  const Comment = mongoose.model('Comment');
+  today.setHours(0, 0, 0, 0);
   
   try {
-    const [users, news, comments] = await Promise.all([
-      User.countDocuments({ createdAt: { $gte: startOfDay } }),
-      News.countDocuments({ createdAt: { $gte: startOfDay } }),
-      Comment.countDocuments({ createdAt: { $gte: startOfDay } })
-    ]);
+    console.log('Bắt đầu cập nhật thống kê theo thời gian...');
     
-    // Update daily stats
-    this.timeStats.daily.push({
-      date: startOfDay,
-      users,
-      news,
-      comments
-    });
+    const categories = await Category.find().select('name');
+    console.log('Danh sách danh mục:', categories);
     
-    // Keep only last 30 days
-    if (this.timeStats.daily.length > 30) {
-      this.timeStats.daily.shift();
+    if (!this.timeStats.daily) {
+      this.timeStats.daily = [];
     }
     
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      
+      const dailyStats = {
+        date: date,
+        users: await User.countDocuments({ 
+          createdAt: { 
+            $gte: new Date(date.setHours(0, 0, 0, 0)),
+            $lt: new Date(date.setHours(23, 59, 59, 999))
+          } 
+        }),
+        news: await News.countDocuments({ 
+          createdAt: { 
+            $gte: new Date(date.setHours(0, 0, 0, 0)),
+            $lt: new Date(date.setHours(23, 59, 59, 999))
+          },
+          status: 'published'
+        }),
+        views: await News.aggregate([
+          { 
+            $match: { 
+              createdAt: { 
+                $gte: new Date(date.setHours(0, 0, 0, 0)),
+                $lt: new Date(date.setHours(23, 59, 59, 999))
+              },
+              status: 'published'
+            } 
+          },
+          { $group: { _id: null, total: { $sum: "$viewCount" } } }
+        ]).then(result => result[0]?.total || 0),
+        categories: await Promise.all(categories.map(async (category) => {
+          const count = await News.countDocuments({
+            category: category._id,
+            createdAt: { 
+              $gte: new Date(date.setHours(0, 0, 0, 0)),
+              $lt: new Date(date.setHours(23, 59, 59, 999))
+            },
+            status: 'published'
+          });
+          return {
+            name: category.name,
+            count: count
+          };
+        }))
+      };
+
+      console.log(`Thống kê ngày ${date.toLocaleDateString('vi-VN')}:`, dailyStats);
+
+      const existingDailyIndex = this.timeStats.daily.findIndex(
+        stat => stat.date.getTime() === date.getTime()
+      );
+
+      if (existingDailyIndex === -1) {
+        this.timeStats.daily.push(dailyStats);
+      } else {
+        this.timeStats.daily[existingDailyIndex] = dailyStats;
+      }
+    }
+
+    if (this.timeStats.daily.length > 30) {
+      this.timeStats.daily = this.timeStats.daily.slice(-30);
+    }
+
+    if (!this.timeStats.weekly) {
+      this.timeStats.weekly = [];
+    }
+
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - (today.getDay() + (i * 7)));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      const weeklyStats = {
+        week: Math.ceil((today - weekStart) / (7 * 24 * 60 * 60 * 1000)),
+        year: today.getFullYear(),
+        users: await User.countDocuments({ 
+          createdAt: { 
+            $gte: weekStart,
+            $lte: weekEnd
+          } 
+        }),
+        news: await News.countDocuments({ 
+          createdAt: { 
+            $gte: weekStart,
+            $lte: weekEnd
+          },
+          status: 'published'
+        }),
+        views: await News.aggregate([
+          { 
+            $match: { 
+              createdAt: { 
+                $gte: weekStart,
+                $lte: weekEnd
+              },
+              status: 'published'
+            } 
+          },
+          { $group: { _id: null, total: { $sum: "$viewCount" } } }
+        ]).then(result => result[0]?.total || 0),
+        categories: await Promise.all(categories.map(async (category) => {
+          const count = await News.countDocuments({
+            category: category._id,
+            createdAt: { 
+              $gte: weekStart,
+              $lte: weekEnd
+            },
+            status: 'published'
+          });
+          return {
+            name: category.name,
+            count: count
+          };
+        }))
+      };
+
+      console.log(`Thống kê tuần ${weeklyStats.week}/${weeklyStats.year}:`, weeklyStats);
+
+      const existingWeeklyIndex = this.timeStats.weekly.findIndex(
+        stat => stat.week === weeklyStats.week && stat.year === weeklyStats.year
+      );
+
+      if (existingWeeklyIndex === -1) {
+        this.timeStats.weekly.push(weeklyStats);
+      } else {
+        this.timeStats.weekly[existingWeeklyIndex] = weeklyStats;
+      }
+    }
+
+    if (this.timeStats.weekly.length > 12) {
+      this.timeStats.weekly = this.timeStats.weekly.slice(-12);
+    }
+
+    if (!this.timeStats.monthly) {
+      this.timeStats.monthly = [];
+    }
+
+    for (let i = 11; i >= 0; i--) {
+      const monthStart = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const monthEnd = new Date(today.getFullYear(), today.getMonth() - i + 1, 0);
+
+      const monthlyStats = {
+        month: today.getMonth() - i + 1,
+        year: today.getFullYear(),
+        users: await User.countDocuments({ 
+          createdAt: { 
+            $gte: monthStart,
+            $lte: monthEnd
+          } 
+        }),
+        news: await News.countDocuments({ 
+          createdAt: { 
+            $gte: monthStart,
+            $lte: monthEnd
+          },
+          status: 'published'
+        }),
+        views: await News.aggregate([
+          { 
+            $match: { 
+              createdAt: { 
+                $gte: monthStart,
+                $lte: monthEnd
+              },
+              status: 'published'
+            } 
+          },
+          { $group: { _id: null, total: { $sum: "$viewCount" } } }
+        ]).then(result => result[0]?.total || 0),
+        categories: await Promise.all(categories.map(async (category) => {
+          const count = await News.countDocuments({
+            category: category._id,
+            createdAt: { 
+              $gte: monthStart,
+              $lte: monthEnd
+            },
+            status: 'published'
+          });
+          return {
+            name: category.name,
+            count: count
+          };
+        }))
+      };
+
+      console.log(`Thống kê tháng ${monthlyStats.month}/${monthlyStats.year}:`, monthlyStats);
+
+      const existingMonthlyIndex = this.timeStats.monthly.findIndex(
+        stat => stat.month === monthlyStats.month && stat.year === monthlyStats.year
+      );
+
+      if (existingMonthlyIndex === -1) {
+        this.timeStats.monthly.push(monthlyStats);
+      } else {
+        this.timeStats.monthly[existingMonthlyIndex] = monthlyStats;
+      }
+    }
+
+    if (this.timeStats.monthly.length > 12) {
+      this.timeStats.monthly = this.timeStats.monthly.slice(-12);
+    }
+
     await this.save();
+    console.log('Đã cập nhật thống kê theo thời gian thành công');
   } catch (error) {
-    console.error('Error updating time stats:', error);
+    console.error('Lỗi khi cập nhật thống kê theo thời gian:', error);
   }
 };
 
