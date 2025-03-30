@@ -130,19 +130,18 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.5rem;
 }
 
 .tag-badge {
-  background: var(--glass-bg);
-  color: #333;
-  padding: 8px 20px;
-  border-radius: 20px;
+  background: transparent;
+  color: #007bff;
+  padding: 4px 12px;
+  border-radius: 15px;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid #007bff;
   display: inline-flex;
   align-items: center;
 }
@@ -150,7 +149,8 @@
 .tag-badge:hover {
   background: #007bff;
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 }
 
 .tag-badge.active {
@@ -159,8 +159,8 @@
 }
 
 .tag-badge .badge {
-  font-size: 0.8rem;
-  padding: 0.25em 0.6em;
+  font-size: 0.7rem;
+  padding: 0.2em 0.5em;
 }
 </style>
 
